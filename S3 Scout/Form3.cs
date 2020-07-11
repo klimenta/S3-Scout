@@ -22,6 +22,7 @@ namespace S3_Scout
         int intTotalPages = 0;
         public string strAccessKey = "";
         public string strSecretKey = "";
+        string strCurrentBucket = "";
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();
         //CreateBucketTest cb = new CreateBucketTest();
@@ -189,6 +190,7 @@ namespace S3_Scout
         private void dgvBuckets_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
+            strCurrentBucket = strBucketName;
             Refresh(strBucketName);
 
             Logs(FontStyle.Regular, strBucketName + " list completed.");
@@ -483,7 +485,8 @@ namespace S3_Scout
         private void dgvFiles_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             Console.WriteLine("Prodolzi ovde so dabl klik na folder na desna strana");
-            string strBucketName = dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[0].Value.ToString();
+            string strBucketName = dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[1].Value.ToString();
+            strBucketName = strCurrentBucket + "/" + strBucketName;
             Refresh(strBucketName);
 
             Logs(FontStyle.Regular, strBucketName + " list completed.");
