@@ -483,6 +483,11 @@ namespace S3_Scout
         private void dgvFiles_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             Console.WriteLine("Prodolzi ovde so dabl klik na folder na desna strana");
+            string strBucketName = dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[0].Value.ToString();
+            Refresh(strBucketName);
+
+            Logs(FontStyle.Regular, strBucketName + " list completed.");
+
         }
 
     }
