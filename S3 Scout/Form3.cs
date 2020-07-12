@@ -23,6 +23,7 @@ namespace S3_Scout
         public string strAccessKey = "";
         public string strSecretKey = "";
         string strCurrentBucket = "";
+        string strCurrentPrefix = "";
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();
         //CreateBucketTest cb = new CreateBucketTest();
@@ -80,14 +81,14 @@ namespace S3_Scout
             Cursor.Current = Cursors.Default;
         }
 
-        private List<cMyS3Object> GetAllS3Objects(string strFolder)
+        private List<cMyS3Object> GetAllS3Objects(string strFolder, string strPrefix)
         {
             List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();
             AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
             ListObjectsV2Request lstRequest = new ListObjectsV2Request
             {
                 BucketName = strFolder,
-                Prefix = "",
+                Prefix = strPrefix,
                 Delimiter = "",
             };
 
@@ -96,19 +97,38 @@ namespace S3_Scout
             {
                 lstResponse = awsS3Client.ListObjectsV2(lstRequest);
                 char cFolderDelimiter = '/';
-                //IEnumerable<S3Object> folders = lstResponse.S3Objects.Where(x => x.Key.EndsWith(@"/") && x.Size == 0);
+                IEnumerable<S3Object> folders;
+                IEnumerable<S3Object> files;
 
                 //This returns folders only
-                IEnumerable<S3Object> folders = lstResponse.S3Objects.Where(x => x.Key.EndsWith(@"/") && x.Size == 0 && x.Key.Count(f => (f == cFolderDelimiter)) == 1);
+                if (strPrefix == "")
+                {
+                    folders = lstResponse.S3Objects.Where(x => x.Key.EndsWith(@"/") && x.Size == 0 && x.Key.Count(f => (f == cFolderDelimiter)) == 1);
+                }
+                else
+                {
+                    folders = lstResponse.S3Objects.Where(x => x.Key.Substring(strPrefix.Length + 1).EndsWith(@"/") && x.Size == 0 && x.Key.Substring(strPrefix.Length + 1).Count(f => (f == cFolderDelimiter)) == 1);
+                }
                 //This returns files only 
-                IEnumerable<S3Object> files = lstResponse.S3Objects.Where(x => x.Key.Count(f => f == cFolderDelimiter) == 0);
-                //IEnumerable<S3Object> folders = lstResponse.S3Objects.Where(x => (x.Key.EndsWith(@"/") || (x.Key.Length - x.Key.Replace(charz, "").Length) == 1));
-                //foreach (S3Object obj in lstResponse.S3Objects)
-
+                if (strPrefix == "")
+                {
+                    files = lstResponse.S3Objects.Where(x => x.Key.Count(f => f == cFolderDelimiter) == 0);
+                }
+                else
+                {
+                    files = lstResponse.S3Objects.Where(x => x.Key.Substring(strPrefix.Length + 1).Count(f => f == cFolderDelimiter) == 0 && x.Key.Substring(strPrefix.Length +1) != "");
+                }
                 foreach (S3Object obj in folders)
                 {
                     cMyS3Object MyS3ObjectFolder = new cMyS3Object();
-                    MyS3ObjectFolder.Key = obj.Key;
+                    if (strPrefix == "")
+                    {
+                        MyS3ObjectFolder.Key = obj.Key;
+                    }
+                    else
+                    {
+                        MyS3ObjectFolder.Key = obj.Key.Substring(strPrefix.Length + 1);
+                    }
                     MyS3ObjectFolder.Size = obj.Size;
                     MyS3ObjectFolder.LastModified = obj.LastModified;
                     MyS3ObjectFolder.StorageClass = obj.StorageClass;
@@ -118,14 +138,21 @@ namespace S3_Scout
                 foreach (S3Object obj in files)
                 {
                     cMyS3Object MyS3ObjectFile = new cMyS3Object();
-                    MyS3ObjectFile.Key = obj.Key;
+                    if (strPrefix == "")
+                    {
+                        MyS3ObjectFile.Key = obj.Key;
+                    }
+                    else
+                    {
+                        MyS3ObjectFile.Key = obj.Key.Substring(strPrefix.Length + 1);
+                    }
                     MyS3ObjectFile.Size = obj.Size;
                     MyS3ObjectFile.LastModified = obj.LastModified;
                     MyS3ObjectFile.StorageClass = obj.StorageClass;
-                    MyS3ObjectFile.Folder = true;
+                    MyS3ObjectFile.Folder = false;
                     lstS3Objects.Add(MyS3ObjectFile);
                 }
-
+             
 
                 lstRequest.ContinuationToken = lstResponse.NextContinuationToken;
             } while (lstResponse.IsTruncated);
@@ -169,11 +196,11 @@ namespace S3_Scout
             }
         }
 
-        private void Refresh(string strFolderName)
+        private void Refresh(string strFolderName, string strPrefix)
         {
             if (!string.IsNullOrEmpty(strFolderName))
             {
-                lstS3Objects = GetAllS3Objects(strFolderName);
+                lstS3Objects = GetAllS3Objects(strFolderName, strPrefix);
                 intTotalObjects = lstS3Objects.Count;
                 intTotalPages = intTotalObjects / constMaxKeys;
                 intPage = 0;
@@ -191,7 +218,7 @@ namespace S3_Scout
         {
             string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
             strCurrentBucket = strBucketName;
-            Refresh(strBucketName);
+            Refresh(strBucketName,"");
 
             Logs(FontStyle.Regular, strBucketName + " list completed.");
         }
@@ -381,7 +408,7 @@ namespace S3_Scout
                         intFileCount++;
                     }
                 }
-                Refresh(strBucketName);
+                Refresh(strBucketName,"");
             }
 
         }
@@ -483,11 +510,11 @@ namespace S3_Scout
         }
 
         private void dgvFiles_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            Console.WriteLine("Prodolzi ovde so dabl klik na folder na desna strana");
+        {                        
             string strBucketName = dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[1].Value.ToString();
-            strBucketName = strCurrentBucket + "/" + strBucketName;
-            Refresh(strBucketName);
+            
+            Refresh(strCurrentBucket, strCurrentPrefix + strBucketName);
+            strCurrentPrefix = strBucketName + "/";
 
             Logs(FontStyle.Regular, strBucketName + " list completed.");
 
