@@ -28,12 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmView));
             this.dgvBuckets = new System.Windows.Forms.DataGridView();
             this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colRegion = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colBucketDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvFiles = new System.Windows.Forms.DataGridView();
+            this.colType = new System.Windows.Forms.DataGridViewImageColumn();
+            this.colObjectName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colStorageClass = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colObjSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colObjDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnDownload = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.btnCancel = new System.Windows.Forms.Button();
@@ -49,11 +53,7 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.lblTransferredBytes = new System.Windows.Forms.Label();
             this.lblBuckets = new System.Windows.Forms.Label();
-            this.colType = new System.Windows.Forms.DataGridViewImageColumn();
-            this.colObjectName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colStorageClass = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colObjSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colObjDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnUp = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBuckets)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFiles)).BeginInit();
             this.SuspendLayout();
@@ -115,6 +115,37 @@
             this.dgvFiles.Size = new System.Drawing.Size(485, 150);
             this.dgvFiles.TabIndex = 3;
             this.dgvFiles.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvFiles_CellDoubleClick);
+            // 
+            // colType
+            // 
+            this.colType.HeaderText = "Type";
+            this.colType.Name = "colType";
+            this.colType.ReadOnly = true;
+            this.colType.Width = 35;
+            // 
+            // colObjectName
+            // 
+            this.colObjectName.HeaderText = "File Name";
+            this.colObjectName.Name = "colObjectName";
+            this.colObjectName.ReadOnly = true;
+            // 
+            // colStorageClass
+            // 
+            this.colStorageClass.HeaderText = "Storage Class";
+            this.colStorageClass.Name = "colStorageClass";
+            this.colStorageClass.ReadOnly = true;
+            // 
+            // colObjSize
+            // 
+            this.colObjSize.HeaderText = "Size (bytes)";
+            this.colObjSize.Name = "colObjSize";
+            this.colObjSize.ReadOnly = true;
+            // 
+            // colObjDate
+            // 
+            this.colObjDate.HeaderText = "Date Modified";
+            this.colObjDate.Name = "colObjDate";
+            this.colObjDate.ReadOnly = true;
             // 
             // btnDownload
             // 
@@ -246,42 +277,22 @@
             this.lblBuckets.TabIndex = 19;
             this.lblBuckets.Text = "Buckets: ";
             // 
-            // colType
+            // btnUp
             // 
-            this.colType.HeaderText = "Type";
-            this.colType.Name = "colType";
-            this.colType.ReadOnly = true;
-            this.colType.Width = 35;
-            // 
-            // colObjectName
-            // 
-            this.colObjectName.HeaderText = "File Name";
-            this.colObjectName.Name = "colObjectName";
-            this.colObjectName.ReadOnly = true;
-            // 
-            // colStorageClass
-            // 
-            this.colStorageClass.HeaderText = "Storage Class";
-            this.colStorageClass.Name = "colStorageClass";
-            this.colStorageClass.ReadOnly = true;
-            // 
-            // colObjSize
-            // 
-            this.colObjSize.HeaderText = "Size (bytes)";
-            this.colObjSize.Name = "colObjSize";
-            this.colObjSize.ReadOnly = true;
-            // 
-            // colObjDate
-            // 
-            this.colObjDate.HeaderText = "Date Modified";
-            this.colObjDate.Name = "colObjDate";
-            this.colObjDate.ReadOnly = true;
+            this.btnUp.Location = new System.Drawing.Point(443, 178);
+            this.btnUp.Name = "btnUp";
+            this.btnUp.Size = new System.Drawing.Size(42, 23);
+            this.btnUp.TabIndex = 20;
+            this.btnUp.Text = "Up";
+            this.btnUp.UseVisualStyleBackColor = true;
+            this.btnUp.Click += new System.EventHandler(this.btnUp_Click);
             // 
             // frmView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(913, 450);
+            this.Controls.Add(this.btnUp);
             this.Controls.Add(this.lblBuckets);
             this.Controls.Add(this.lblTransferredBytes);
             this.Controls.Add(this.btnDeleteFile);
@@ -297,7 +308,6 @@
             this.Controls.Add(this.btnDownload);
             this.Controls.Add(this.dgvFiles);
             this.Controls.Add(this.dgvBuckets);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "frmView";
             this.Text = "Form3";
             this.Load += new System.EventHandler(this.frmView_Load);
@@ -334,6 +344,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colStorageClass;
         private System.Windows.Forms.DataGridViewTextBoxColumn colObjSize;
         private System.Windows.Forms.DataGridViewTextBoxColumn colObjDate;
-
+        private System.Windows.Forms.Button btnUp;
     }
 }

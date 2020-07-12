@@ -22,8 +22,9 @@ namespace S3_Scout
         int intTotalPages = 0;
         public string strAccessKey = "";
         public string strSecretKey = "";
-        string strCurrentBucket = "";
+        string strTopLevelBucket = "";
         string strCurrentPrefix = "";
+        string strCurrentBucket = "";
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();
         //CreateBucketTest cb = new CreateBucketTest();
@@ -47,7 +48,6 @@ namespace S3_Scout
             rbLogs.AppendText(strText + "\n");
             rbLogs.ScrollToCaret();
         }
-
 
         public frmView()
         {
@@ -103,11 +103,14 @@ namespace S3_Scout
                 //This returns folders only
                 if (strPrefix == "")
                 {
-                    folders = lstResponse.S3Objects.Where(x => x.Key.EndsWith(@"/") && x.Size == 0 && x.Key.Count(f => (f == cFolderDelimiter)) == 1);
+                    folders = lstResponse.S3Objects.Where(x => x.Key.EndsWith(@"/") && x.Size == 0 
+                                                            && x.Key.Count(f => (f == cFolderDelimiter)) == 1);
                 }
                 else
                 {
-                    folders = lstResponse.S3Objects.Where(x => x.Key.Substring(strPrefix.Length + 1).EndsWith(@"/") && x.Size == 0 && x.Key.Substring(strPrefix.Length + 1).Count(f => (f == cFolderDelimiter)) == 1);
+                    folders = lstResponse.S3Objects.Where(x => x.Key.Substring(strPrefix.Length + 1).EndsWith(@"/") 
+                                                            && x.Size == 0 
+                                                            && x.Key.Substring(strPrefix.Length + 1).Count(f => (f == cFolderDelimiter)) == 1);
                 }
                 //This returns files only 
                 if (strPrefix == "")
@@ -116,7 +119,8 @@ namespace S3_Scout
                 }
                 else
                 {
-                    files = lstResponse.S3Objects.Where(x => x.Key.Substring(strPrefix.Length + 1).Count(f => f == cFolderDelimiter) == 0 && x.Key.Substring(strPrefix.Length +1) != "");
+                    files = lstResponse.S3Objects.Where(x => x.Key.Substring(strPrefix.Length + 1).Count(f => f == cFolderDelimiter) == 0 
+                                                        && x.Key.Substring(strPrefix.Length +1) != "");
                 }
                 foreach (S3Object obj in folders)
                 {
@@ -181,10 +185,12 @@ namespace S3_Scout
                 {
                     strObject = strObject.Substring(0, strObject.Length - 1);
                     bmpImage = Properties.Resources.folder;
+                    bmpImage.Tag = "folder";
                 }
                 else
                 {
                     bmpImage = Properties.Resources.file;
+                    bmpImage.Tag = "file";
                 }
 
 
@@ -217,10 +223,10 @@ namespace S3_Scout
         private void dgvBuckets_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
-            strCurrentBucket = strBucketName;
+            strTopLevelBucket = strBucketName;
             Refresh(strBucketName,"");
-
-            Logs(FontStyle.Regular, strBucketName + " list completed.");
+            strCurrentBucket = strBucketName;
+            Logs(FontStyle.Regular, strCurrentBucket + " list completed.");
         }
 
         private async void btnDownload_Click(object sender, EventArgs e)
@@ -233,10 +239,10 @@ namespace S3_Scout
             {
                 if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
+                    string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[1].Value.ToString();
                     for (int i = 0; i < selectedCellCount; i++)
                     {
-                        string strFileName = dgvFiles.Rows[dgvFiles.SelectedRows[i].Index].Cells[0].Value.ToString();
+                        string strFileName = dgvFiles.Rows[dgvFiles.SelectedRows[i].Index].Cells[1].Value.ToString();
                         string strFolderName = string.Empty;
                         strFolderName = folderBrowserDialog1.SelectedPath;
 
@@ -512,13 +518,20 @@ namespace S3_Scout
         private void dgvFiles_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {                        
             string strBucketName = dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[1].Value.ToString();
-            
-            Refresh(strCurrentBucket, strCurrentPrefix + strBucketName);
-            strCurrentPrefix = strBucketName + "/";
+            Bitmap bmpType = (Bitmap)dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[0].Value;
+            if ((string)bmpType.Tag == "folder")
+            {
+                Refresh(strTopLevelBucket, strCurrentPrefix + strBucketName);
+                strCurrentBucket = strCurrentPrefix + strBucketName;
+                strCurrentPrefix = strBucketName + "/";
 
-            Logs(FontStyle.Regular, strBucketName + " list completed.");
-
+                Logs(FontStyle.Regular, strBucketName + " list completed.");
+            }
         }
 
+        private void btnUp_Click(object sender, EventArgs e)
+        {            
+            Refresh(strTopLevelBucket, strCurrentBucket);
+        }
     }
 }
