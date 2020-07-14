@@ -24,7 +24,7 @@ namespace S3_Scout
         public string strSecretKey = "";
         string strTopLevelBucket = "";
         string strCurrentPrefix = "";
-        string strCurrentBucket = "";
+//        string strCurrentBucket = "";
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();
         //CreateBucketTest cb = new CreateBucketTest();
@@ -224,9 +224,10 @@ namespace S3_Scout
         {
             string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
             strTopLevelBucket = strBucketName;
-            Refresh(strBucketName,"");
-            strCurrentBucket = strBucketName;
-            Logs(FontStyle.Regular, strCurrentBucket + " list completed.");
+            strCurrentPrefix = "";
+            Refresh(strBucketName, strCurrentPrefix);
+            
+            Logs(FontStyle.Regular, strTopLevelBucket + " list completed.");
         }
 
         private async void btnDownload_Click(object sender, EventArgs e)
@@ -522,16 +523,24 @@ namespace S3_Scout
             if ((string)bmpType.Tag == "folder")
             {
                 Refresh(strTopLevelBucket, strCurrentPrefix + strBucketName);
-                strCurrentBucket = strCurrentPrefix + strBucketName;
-                strCurrentPrefix = strBucketName + "/";
+                
+                strCurrentPrefix = strCurrentPrefix + strBucketName + "/";
 
                 Logs(FontStyle.Regular, strBucketName + " list completed.");
             }
         }
 
         private void btnUp_Click(object sender, EventArgs e)
-        {            
-            Refresh(strTopLevelBucket, strCurrentBucket);
+        {
+            if (strCurrentPrefix == "") return;
+            // Remove last /
+            strCurrentPrefix = strCurrentPrefix.Substring(0, strCurrentPrefix.Length - 1);
+            // Cut until the last /
+            int intDelimiterPosition = strCurrentPrefix.LastIndexOf('/');
+            if (intDelimiterPosition > 0)
+                strCurrentPrefix = strCurrentPrefix.Substring(0, intDelimiterPosition);
+            else strCurrentPrefix = "";
+            Refresh(strTopLevelBucket, strCurrentPrefix);
         }
     }
 }
