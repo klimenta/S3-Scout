@@ -26,10 +26,8 @@ namespace S3_Scout
         public string strSecretKey = "";
         string strTopLevelBucket = "";
         string strCurrentPrefix = "";
-//        string strCurrentBucket = "";
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();
-        //CreateBucketTest cb = new CreateBucketTest();
+        List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();        
 
         [DllImport("shlwapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
         internal static extern bool PathCompactPathEx(System.Text.StringBuilder pszOut, string pszSrc, Int32 cchMax, Int32 dwFlags);
@@ -71,10 +69,11 @@ namespace S3_Scout
             InitializeComponent();
         }
 
-        private void frmView_Load(object sender, EventArgs e)
+        private void ListBuckets()
         {
-
-
+            dgvBuckets.Rows.Clear();
+            intBucketCount = 0;
+            Cursor.Current = Cursors.WaitCursor;
             AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
             ListBucketsResponse response = awsS3Client.ListBuckets();
 
@@ -96,6 +95,13 @@ namespace S3_Scout
             }
             lblBuckets.Text = "Buckets: " + intBucketCount.ToString();
             Cursor.Current = Cursors.Default;
+
+        }
+
+
+        private void frmView_Load(object sender, EventArgs e)
+        {
+            ListBuckets();
         }
 
         private List<cMyS3Object> GetAllS3Objects(string strFolder, string strPrefix)
@@ -221,6 +227,7 @@ namespace S3_Scout
 
         private void Refresh(string strFolderName, string strPrefix)
         {
+            Cursor.Current = Cursors.WaitCursor;
             if (!string.IsNullOrEmpty(strFolderName))
             {
                 lstS3Objects = GetAllS3Objects(strFolderName, strPrefix);
@@ -234,7 +241,7 @@ namespace S3_Scout
 
                 ShowPage(intPage, lstS3Objects);
             }
-
+            Cursor.Current = Cursors.Default;
             lblCurrentFolder.Text = "L: " + PathShortener(strFolderName + "/" + strPrefix, 90);
 
         }
@@ -245,6 +252,7 @@ namespace S3_Scout
             string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
             strTopLevelBucket = strBucketName;
             strCurrentPrefix = "";
+            
             Refresh(strBucketName, strCurrentPrefix);
             
             Logs(FontStyle.Regular, strTopLevelBucket + " list completed.");
@@ -561,6 +569,11 @@ namespace S3_Scout
                 strCurrentPrefix = strCurrentPrefix.Substring(0, intDelimiterPosition);
             else strCurrentPrefix = "";
             Refresh(strTopLevelBucket, strCurrentPrefix);
+        }
+
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            ListBuckets();
         }
     }
 }

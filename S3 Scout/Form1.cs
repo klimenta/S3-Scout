@@ -116,13 +116,24 @@ namespace S3_Scout
 
         private void ViewS3()
         {
+            //Exit if the same account form is already open
+            foreach (Form frmOpened in Application.OpenForms)
+            {
+                string strAccountName = "Account: " + dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[0].Value.ToString();
+                if (frmOpened.Text == strAccountName)
+                {
+                    MessageBox.Show("You already have " + strAccountName + " opened.", "Duplicate account", 
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            
             Cursor.Current = Cursors.WaitCursor;
             viewForm = new frmView();
             viewForm.Text = "Account: " + dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[0].Value.ToString();
             viewForm.strAccessKey = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[1].Value.ToString();
             viewForm.strSecretKey = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[2].Value.ToString();
-            viewForm.ShowDialog();
-            viewForm.Dispose();
+            viewForm.Show();            
         }
 
         private void btnView_Click(object sender, EventArgs e)
@@ -203,6 +214,7 @@ namespace S3_Scout
                     accountForm.strSecretKey = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[2].Value.ToString();
 
                     accountForm.ShowDialog();
+                    accountForm.Dispose();
                 }
                 if (isValid)
                 {

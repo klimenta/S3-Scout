@@ -55,6 +55,7 @@
             this.lblBuckets = new System.Windows.Forms.Label();
             this.btnUp = new System.Windows.Forms.Button();
             this.lblCurrentFolder = new System.Windows.Forms.Label();
+            this.btnRefresh = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBuckets)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFiles)).BeginInit();
             this.SuspendLayout();
@@ -211,7 +212,7 @@
             // 
             this.btnCreateBucket.Location = new System.Drawing.Point(85, 169);
             this.btnCreateBucket.Name = "btnCreateBucket";
-            this.btnCreateBucket.Size = new System.Drawing.Size(112, 23);
+            this.btnCreateBucket.Size = new System.Drawing.Size(91, 23);
             this.btnCreateBucket.TabIndex = 13;
             this.btnCreateBucket.Text = "Create Bucket";
             this.btnCreateBucket.UseVisualStyleBackColor = true;
@@ -219,9 +220,9 @@
             // 
             // btnDeleteBucket
             // 
-            this.btnDeleteBucket.Location = new System.Drawing.Point(213, 169);
+            this.btnDeleteBucket.Location = new System.Drawing.Point(191, 169);
             this.btnDeleteBucket.Name = "btnDeleteBucket";
-            this.btnDeleteBucket.Size = new System.Drawing.Size(125, 23);
+            this.btnDeleteBucket.Size = new System.Drawing.Size(78, 23);
             this.btnDeleteBucket.TabIndex = 14;
             this.btnDeleteBucket.Text = "Delete Bucket";
             this.btnDeleteBucket.UseVisualStyleBackColor = true;
@@ -297,11 +298,22 @@
             this.lblCurrentFolder.TabIndex = 21;
             this.lblCurrentFolder.Text = "L:";
             // 
+            // btnRefresh
+            // 
+            this.btnRefresh.Location = new System.Drawing.Point(287, 168);
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Size = new System.Drawing.Size(97, 23);
+            this.btnRefresh.TabIndex = 22;
+            this.btnRefresh.Text = "Refresh";
+            this.btnRefresh.UseVisualStyleBackColor = true;
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            // 
             // frmView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(913, 450);
+            this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.lblCurrentFolder);
             this.Controls.Add(this.btnUp);
             this.Controls.Add(this.lblBuckets);
@@ -357,5 +369,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colObjDate;
         private System.Windows.Forms.Button btnUp;
         private System.Windows.Forms.Label lblCurrentFolder;
+        private System.Windows.Forms.Button btnRefresh;
     }
 }
