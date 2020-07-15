@@ -54,6 +54,7 @@
             this.lblTransferredBytes = new System.Windows.Forms.Label();
             this.lblBuckets = new System.Windows.Forms.Label();
             this.btnUp = new System.Windows.Forms.Button();
+            this.lblCurrentFolder = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBuckets)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFiles)).BeginInit();
             this.SuspendLayout();
@@ -287,11 +288,21 @@
             this.btnUp.UseVisualStyleBackColor = true;
             this.btnUp.Click += new System.EventHandler(this.btnUp_Click);
             // 
+            // lblCurrentFolder
+            // 
+            this.lblCurrentFolder.AutoSize = true;
+            this.lblCurrentFolder.Location = new System.Drawing.Point(33, 334);
+            this.lblCurrentFolder.Name = "lblCurrentFolder";
+            this.lblCurrentFolder.Size = new System.Drawing.Size(16, 13);
+            this.lblCurrentFolder.TabIndex = 21;
+            this.lblCurrentFolder.Text = "L:";
+            // 
             // frmView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(913, 450);
+            this.Controls.Add(this.lblCurrentFolder);
             this.Controls.Add(this.btnUp);
             this.Controls.Add(this.lblBuckets);
             this.Controls.Add(this.lblTransferredBytes);
@@ -345,5 +356,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colObjSize;
         private System.Windows.Forms.DataGridViewTextBoxColumn colObjDate;
         private System.Windows.Forms.Button btnUp;
+        private System.Windows.Forms.Label lblCurrentFolder;
     }
 }

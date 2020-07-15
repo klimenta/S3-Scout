@@ -8,6 +8,8 @@ using System.Threading;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace S3_Scout
 {
@@ -29,6 +31,21 @@ namespace S3_Scout
         List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();
         //CreateBucketTest cb = new CreateBucketTest();
 
+        [DllImport("shlwapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        internal static extern bool PathCompactPathEx(System.Text.StringBuilder pszOut, string pszSrc, Int32 cchMax, Int32 dwFlags);
+
+        static string PathShortener(string Path, int DesiredLength)
+        {
+            StringBuilder sb = new StringBuilder(260);
+            if (PathCompactPathEx(sb, Path, DesiredLength + 1, 0))
+            { 
+                return sb.ToString(); 
+            }
+            else
+            { 
+                return Path; 
+            }
+        }
 
         private class cMyS3Object
         {
@@ -217,6 +234,9 @@ namespace S3_Scout
 
                 ShowPage(intPage, lstS3Objects);
             }
+
+            lblCurrentFolder.Text = "L: " + PathShortener(strFolderName + "/" + strPrefix, 90);
+
         }
 
 
