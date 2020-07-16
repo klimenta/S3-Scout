@@ -489,7 +489,6 @@ namespace S3_Scout
 
         private void btnCreateBucket_Click(object sender, EventArgs e)
         {
-            //trest
             bucketForm = new frmAddBucket();
             bucketForm.ShowDialog();
             if (isValid)
