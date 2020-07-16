@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmView));
             this.dgvBuckets = new System.Windows.Forms.DataGridView();
             this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colRegion = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -328,6 +329,7 @@
             this.btnCreateFolder.TabIndex = 24;
             this.btnCreateFolder.Text = "Create Folder";
             this.btnCreateFolder.UseVisualStyleBackColor = true;
+            this.btnCreateFolder.Click += new System.EventHandler(this.btnCreateFolder_Click);
             // 
             // btnRefreshFolders
             // 
@@ -342,7 +344,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(913, 646);
+            this.ClientSize = new System.Drawing.Size(1108, 646);
             this.Controls.Add(this.btnRefreshFolders);
             this.Controls.Add(this.btnCreateFolder);
             this.Controls.Add(this.btnRename);
@@ -364,6 +366,7 @@
             this.Controls.Add(this.btnDownload);
             this.Controls.Add(this.dgvFiles);
             this.Controls.Add(this.dgvBuckets);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "frmView";
             this.Text = "Form3";
             this.Load += new System.EventHandler(this.frmView_Load);

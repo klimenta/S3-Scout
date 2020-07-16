@@ -128,6 +128,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "frmAddAccount";
+            this.Text = "Account Management";
             this.Load += new System.EventHandler(this.frmAddAccount_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

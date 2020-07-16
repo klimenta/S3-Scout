@@ -490,17 +490,15 @@ namespace S3_Scout
         private void btnCreateBucket_Click(object sender, EventArgs e)
         {
             bucketForm = new frmAddBucket();
+            bucketForm.cbRegion.Enabled = true;
             bucketForm.ShowDialog();
             if (isValid)
             {
-
-                //MessageBox.Show(bucketForm.strBucketName);
-                //MessageBox.Show(bucketForm.strRegion);
+               
                 RegionEndpoint region = RegionEndpoint.GetBySystemName(bucketForm.strRegion);
                 try
                 {
-                    var client = new AmazonS3Client(strAccessKey, strSecretKey, region);
-                    //var client = new AmazonS3Client();
+                    var client = new AmazonS3Client(strAccessKey, strSecretKey, region);                    
                     PutBucketRequest request = new PutBucketRequest();
                     request.BucketName = bucketForm.strBucketName;
                     client.PutBucket(request);
@@ -518,63 +516,9 @@ namespace S3_Scout
                 intBucketCount++;
                 lblBuckets.Text = "Buckets: " + intBucketCount.ToString();
             }
+            bucketForm.Dispose();
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            /*
-            MessageBox.Show(RegionEndpoint.AFSouth1.DisplayName);
-            MessageBox.Show(RegionEndpoint.APEast1.DisplayName);
-            MessageBox.Show(RegionEndpoint.APNortheast1.DisplayName);
-            MessageBox.Show(RegionEndpoint.APNortheast2.DisplayName);
-            MessageBox.Show(RegionEndpoint.APNortheast3.DisplayName);
-            MessageBox.Show(RegionEndpoint.APSouth1.DisplayName);
-            MessageBox.Show(RegionEndpoint.APSoutheast1.DisplayName);
-            MessageBox.Show(RegionEndpoint.APSoutheast2.DisplayName);
-            MessageBox.Show(RegionEndpoint.CACentral1.DisplayName);
-            MessageBox.Show(RegionEndpoint.CNNorth1.DisplayName);
-            MessageBox.Show(RegionEndpoint.CNNorthWest1.DisplayName);
-            MessageBox.Show(RegionEndpoint.EUCentral1.DisplayName);
-            MessageBox.Show(RegionEndpoint.EUNorth1.DisplayName);
-            MessageBox.Show(RegionEndpoint.EUSouth1.DisplayName);
-            MessageBox.Show(RegionEndpoint.EUWest1.DisplayName);
-            MessageBox.Show(RegionEndpoint.EUWest2.DisplayName);
-            MessageBox.Show(RegionEndpoint.EUWest3.DisplayName);
-            MessageBox.Show(RegionEndpoint.MESouth1.DisplayName);
-            MessageBox.Show(RegionEndpoint.SAEast1.DisplayName);
-            MessageBox.Show(RegionEndpoint.USEast1.DisplayName);
-            MessageBox.Show(RegionEndpoint.USEast2.DisplayName);
-            MessageBox.Show(RegionEndpoint.USGovCloudEast1.DisplayName);
-            MessageBox.Show(RegionEndpoint.USGovCloudWest1.DisplayName);
-            MessageBox.Show(RegionEndpoint.USWest1.DisplayName);
-            MessageBox.Show(RegionEndpoint.USWest2.DisplayName);
-            */
-            Console.WriteLine(RegionEndpoint.AFSouth1.DisplayName);
-            Console.WriteLine(RegionEndpoint.APEast1.DisplayName);
-            Console.WriteLine(RegionEndpoint.APNortheast1.DisplayName);
-            Console.WriteLine(RegionEndpoint.APNortheast2.DisplayName);
-            Console.WriteLine(RegionEndpoint.APNortheast3.DisplayName);
-            Console.WriteLine(RegionEndpoint.APSouth1.DisplayName);
-            Console.WriteLine(RegionEndpoint.APSoutheast1.DisplayName);
-            Console.WriteLine(RegionEndpoint.APSoutheast2.DisplayName);
-            Console.WriteLine(RegionEndpoint.CACentral1.DisplayName);
-            Console.WriteLine(RegionEndpoint.CNNorth1.DisplayName);
-            Console.WriteLine(RegionEndpoint.CNNorthWest1.DisplayName);
-            Console.WriteLine(RegionEndpoint.EUCentral1.DisplayName);
-            Console.WriteLine(RegionEndpoint.EUNorth1.DisplayName);
-            Console.WriteLine(RegionEndpoint.EUSouth1.DisplayName);
-            Console.WriteLine(RegionEndpoint.EUWest1.DisplayName);
-            Console.WriteLine(RegionEndpoint.EUWest2.DisplayName);
-            Console.WriteLine(RegionEndpoint.EUWest3.DisplayName);
-            Console.WriteLine(RegionEndpoint.MESouth1.DisplayName);
-            Console.WriteLine(RegionEndpoint.SAEast1.DisplayName);
-            Console.WriteLine(RegionEndpoint.USEast1.DisplayName);
-            Console.WriteLine(RegionEndpoint.USEast2.DisplayName);
-            Console.WriteLine(RegionEndpoint.USGovCloudEast1.DisplayName);
-            Console.WriteLine(RegionEndpoint.USGovCloudWest1.DisplayName);
-            Console.WriteLine(RegionEndpoint.USWest1.DisplayName);
-            Console.WriteLine(RegionEndpoint.USWest2.DisplayName);
-        }
 
         private void dgvFiles_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {                        
@@ -606,6 +550,44 @@ namespace S3_Scout
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             ListBuckets();
+        }
+
+        private void btnCreateFolder_Click(object sender, EventArgs e)
+        {
+            if (strTopLevelBucket == "")
+            {
+                MessageBox.Show("Select a top bucket. Double-click on a bucket on the left.", "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            bucketForm = new frmAddBucket();
+            bucketForm.cbRegion.Enabled = false;
+            bucketForm.ShowDialog();
+            if (isValid)
+            {
+
+                RegionEndpoint region = RegionEndpoint.GetBySystemName(bucketForm.strRegion);
+                try
+                {
+                    var client = new AmazonS3Client(strAccessKey, strSecretKey, region);
+                    PutBucketRequest request = new PutBucketRequest();
+                    request.BucketName = bucketForm.strBucketName;
+                    client.PutBucket(request);
+                }
+                catch (AmazonS3Exception amazonS3Exception)
+                {
+                    if (amazonS3Exception.ErrorCode != null)
+                    {
+                        LogEntry(FontStyle.Regular, amazonS3Exception.Message);
+                        return;
+                    }
+                }
+                LogEntry(FontStyle.Regular, bucketForm.strBucketName + " created in " + bucketForm.strRegion);
+                dgvBuckets.Rows.Add(bucketForm.strBucketName, bucketForm.strRegion, DateTime.Now.ToString());
+                intBucketCount++;
+                lblBuckets.Text = "Buckets: " + intBucketCount.ToString();
+            }
+            bucketForm.Dispose();
         }
     }
 }
