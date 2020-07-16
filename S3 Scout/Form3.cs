@@ -54,7 +54,7 @@ namespace S3_Scout
             public string StorageClass { get; set; }
         }
 
-        private void Logs(FontStyle fontStyle, string strText)
+        private void LogEntry(FontStyle fontStyle, string strText)
         {
             DateTime saveNow = DateTime.Now;
             rbLogs.SelectionFont = new Font(rbLogs.Font, FontStyle.Regular);
@@ -255,13 +255,13 @@ namespace S3_Scout
             
             Refresh(strBucketName, strCurrentPrefix);
             
-            Logs(FontStyle.Regular, strTopLevelBucket + " list completed.");
+            LogEntry(FontStyle.Regular, strTopLevelBucket + " list completed.");
         }
 
         private async void btnDownload_Click(object sender, EventArgs e)
         {
             progressBar1.Value = 0;
-            Logs(FontStyle.Bold, "Download");
+            LogEntry(FontStyle.Bold, "Download");
             int intDownloadedFiles = 1;
             int selectedCellCount = dgvFiles.SelectedRows.Count;
             if (selectedCellCount > 0)
@@ -349,7 +349,7 @@ namespace S3_Scout
                     try
                     {
                         client.DeleteBucket(deleteBucketRequest);
-                        Logs(FontStyle.Regular, strBucketName + " deleted.");
+                        LogEntry(FontStyle.Regular, strBucketName + " deleted.");
                         // If we get here, no error was generated so we'll assume the bucket was deleted and return.
                         foreach (DataGridViewRow row in dgvBuckets.SelectedRows)
                         {
@@ -360,19 +360,26 @@ namespace S3_Scout
 
                         return;
                     }
-
+                    
                     catch (AmazonS3Exception ex)
                     {
                         if (!ex.ErrorCode.Equals("BucketNotEmpty"))
                         {
                             // We got an unanticipated error. Just rethrow.
-                            Logs(FontStyle.Bold, "Bucket is not empty. Deleting anyway...");
-                            throw;
+                            LogEntry(FontStyle.Bold, strBucketName + " deletion failed! Check the policy for accidental deletion.");
+                            //throw;
                         }
+                        if (ex.ErrorCode.Equals("BucketNotEmpty"))
+                        {
+                            // We got an unanticipated error. Just rethrow.
+                            LogEntry(FontStyle.Bold, strBucketName + " bucket is not empty. This might take a while.");
+                            //throw;
+                        }
+
                     }
 
                     DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest { BucketName = strBucketName };
-                    Logs(FontStyle.Regular, "Deleting objects in a bucket. Be patient...");
+                    LogEntry(FontStyle.Regular, "Deleting objects in a bucket. Be patient...");
                     Cursor.Current = Cursors.WaitCursor;
                     foreach (S3Object obj in client.ListObjects(new ListObjectsRequest { BucketName = strBucketName }).S3Objects)
                     {
@@ -381,17 +388,42 @@ namespace S3_Scout
                     }
 
                     // Submit the request
-                    client.DeleteObjects(deleteObjectsRequest);
+                    try
+                    {
+                        client.DeleteObjects(deleteObjectsRequest);
+                    }
+                    catch (AmazonS3Exception ex)
+                    {
+                        if (!ex.ErrorCode.Equals("BucketNotEmpty"))
+                        {
+                            // We got an unanticipated error. Just rethrow.
+                            //Logs(FontStyle.Bold, "2Failed! Check the policy for accidental deletion.");
+                            return;
+                        }
+                    }
                     Cursor.Current = Cursors.Default;
                     // The bucket is empty now, so delete the bucket.
-                    client.DeleteBucket(deleteBucketRequest);
-                    Logs(FontStyle.Regular, strBucketName + " deleted.");
+                    try
+                    {
+                        client.DeleteBucket(deleteBucketRequest);
+                    }
+                    catch (AmazonS3Exception ex)
+                    {
+                        if (!ex.ErrorCode.Equals("BucketNotEmpty"))
+                        {
+                            // We got an unanticipated error. Just rethrow.
+                            LogEntry(FontStyle.Bold, "3Failed! Check the policy for accidental deletion.");
+                            return;
+                        }
+                    }
+                    LogEntry(FontStyle.Regular, strBucketName + " successfully emptied and deleted.");
                     foreach (DataGridViewRow row in dgvBuckets.SelectedRows)
                     {
                         dgvBuckets.Rows.RemoveAt(row.Index);
                     }
                     intBucketCount--;
                     lblBuckets.Text = "Buckets: " + intBucketCount.ToString();
+                    dgvFiles.Rows.Clear();
 
                 }
                 //https://stackoverflow.com/questions/11797476/delete-a-bucket-in-s3
@@ -457,6 +489,7 @@ namespace S3_Scout
 
         private void btnCreateBucket_Click(object sender, EventArgs e)
         {
+            //trest
             bucketForm = new frmAddBucket();
             bucketForm.ShowDialog();
             if (isValid)
@@ -477,11 +510,11 @@ namespace S3_Scout
                 {
                     if (amazonS3Exception.ErrorCode != null)
                     {
-                        Logs(FontStyle.Regular, amazonS3Exception.Message);
+                        LogEntry(FontStyle.Regular, amazonS3Exception.Message);
                         return;
                     }
                 }
-                Logs(FontStyle.Regular, bucketForm.strBucketName + " created in " + bucketForm.strRegion);
+                LogEntry(FontStyle.Regular, bucketForm.strBucketName + " created in " + bucketForm.strRegion);
                 dgvBuckets.Rows.Add(bucketForm.strBucketName, bucketForm.strRegion, DateTime.Now.ToString());
                 intBucketCount++;
                 lblBuckets.Text = "Buckets: " + intBucketCount.ToString();
@@ -554,7 +587,7 @@ namespace S3_Scout
                 
                 strCurrentPrefix = strCurrentPrefix + strBucketName + "/";
 
-                Logs(FontStyle.Regular, strBucketName + " list completed.");
+                LogEntry(FontStyle.Regular, strBucketName + " list completed.");
             }
         }
 

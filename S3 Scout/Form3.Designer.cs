@@ -56,6 +56,9 @@
             this.btnUp = new System.Windows.Forms.Button();
             this.lblCurrentFolder = new System.Windows.Forms.Label();
             this.btnRefresh = new System.Windows.Forms.Button();
+            this.btnRename = new System.Windows.Forms.Button();
+            this.btnCreateFolder = new System.Windows.Forms.Button();
+            this.btnRefreshFolders = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBuckets)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFiles)).BeginInit();
             this.SuspendLayout();
@@ -161,7 +164,7 @@
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(402, 376);
+            this.progressBar1.Location = new System.Drawing.Point(405, 265);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(253, 23);
             this.progressBar1.Step = 1;
@@ -169,9 +172,9 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(755, 217);
+            this.btnCancel.Location = new System.Drawing.Point(664, 265);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.Size = new System.Drawing.Size(86, 23);
             this.btnCancel.TabIndex = 6;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
@@ -179,17 +182,17 @@
             // 
             // rbLogs
             // 
-            this.rbLogs.Location = new System.Drawing.Point(48, 217);
+            this.rbLogs.Location = new System.Drawing.Point(32, 350);
             this.rbLogs.Name = "rbLogs";
             this.rbLogs.ReadOnly = true;
-            this.rbLogs.Size = new System.Drawing.Size(336, 96);
+            this.rbLogs.Size = new System.Drawing.Size(783, 96);
             this.rbLogs.TabIndex = 9;
             this.rbLogs.Text = "";
             // 
             // btnPrev
             // 
             this.btnPrev.Enabled = false;
-            this.btnPrev.Location = new System.Drawing.Point(812, 169);
+            this.btnPrev.Location = new System.Drawing.Point(781, 168);
             this.btnPrev.Name = "btnPrev";
             this.btnPrev.Size = new System.Drawing.Size(34, 23);
             this.btnPrev.TabIndex = 11;
@@ -200,7 +203,7 @@
             // btnNext
             // 
             this.btnNext.Enabled = false;
-            this.btnNext.Location = new System.Drawing.Point(852, 169);
+            this.btnNext.Location = new System.Drawing.Point(867, 169);
             this.btnNext.Name = "btnNext";
             this.btnNext.Size = new System.Drawing.Size(34, 23);
             this.btnNext.TabIndex = 12;
@@ -231,7 +234,7 @@
             // lblTransferredFiles
             // 
             this.lblTransferredFiles.AutoSize = true;
-            this.lblTransferredFiles.Location = new System.Drawing.Point(399, 360);
+            this.lblTransferredFiles.Location = new System.Drawing.Point(413, 300);
             this.lblTransferredFiles.Name = "lblTransferredFiles";
             this.lblTransferredFiles.Size = new System.Drawing.Size(25, 13);
             this.lblTransferredFiles.TabIndex = 15;
@@ -249,7 +252,7 @@
             // 
             // btnDeleteFile
             // 
-            this.btnDeleteFile.Location = new System.Drawing.Point(661, 217);
+            this.btnDeleteFile.Location = new System.Drawing.Point(740, 217);
             this.btnDeleteFile.Name = "btnDeleteFile";
             this.btnDeleteFile.Size = new System.Drawing.Size(75, 23);
             this.btnDeleteFile.TabIndex = 17;
@@ -264,7 +267,7 @@
             // lblTransferredBytes
             // 
             this.lblTransferredBytes.AutoSize = true;
-            this.lblTransferredBytes.Location = new System.Drawing.Point(402, 406);
+            this.lblTransferredBytes.Location = new System.Drawing.Point(413, 322);
             this.lblTransferredBytes.Name = "lblTransferredBytes";
             this.lblTransferredBytes.Size = new System.Drawing.Size(35, 13);
             this.lblTransferredBytes.TabIndex = 18;
@@ -281,7 +284,7 @@
             // 
             // btnUp
             // 
-            this.btnUp.Location = new System.Drawing.Point(443, 178);
+            this.btnUp.Location = new System.Drawing.Point(821, 168);
             this.btnUp.Name = "btnUp";
             this.btnUp.Size = new System.Drawing.Size(42, 23);
             this.btnUp.TabIndex = 20;
@@ -292,7 +295,7 @@
             // lblCurrentFolder
             // 
             this.lblCurrentFolder.AutoSize = true;
-            this.lblCurrentFolder.Location = new System.Drawing.Point(33, 334);
+            this.lblCurrentFolder.Location = new System.Drawing.Point(413, 173);
             this.lblCurrentFolder.Name = "lblCurrentFolder";
             this.lblCurrentFolder.Size = new System.Drawing.Size(16, 13);
             this.lblCurrentFolder.TabIndex = 21;
@@ -308,11 +311,41 @@
             this.btnRefresh.UseVisualStyleBackColor = true;
             this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
+            // btnRename
+            // 
+            this.btnRename.Location = new System.Drawing.Point(661, 215);
+            this.btnRename.Name = "btnRename";
+            this.btnRename.Size = new System.Drawing.Size(75, 23);
+            this.btnRename.TabIndex = 23;
+            this.btnRename.Text = "Rename";
+            this.btnRename.UseVisualStyleBackColor = true;
+            // 
+            // btnCreateFolder
+            // 
+            this.btnCreateFolder.Location = new System.Drawing.Point(402, 217);
+            this.btnCreateFolder.Name = "btnCreateFolder";
+            this.btnCreateFolder.Size = new System.Drawing.Size(90, 23);
+            this.btnCreateFolder.TabIndex = 24;
+            this.btnCreateFolder.Text = "Create Folder";
+            this.btnCreateFolder.UseVisualStyleBackColor = true;
+            // 
+            // btnRefreshFolders
+            // 
+            this.btnRefreshFolders.Location = new System.Drawing.Point(821, 215);
+            this.btnRefreshFolders.Name = "btnRefreshFolders";
+            this.btnRefreshFolders.Size = new System.Drawing.Size(75, 23);
+            this.btnRefreshFolders.TabIndex = 25;
+            this.btnRefreshFolders.Text = "Refresh";
+            this.btnRefreshFolders.UseVisualStyleBackColor = true;
+            // 
             // frmView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(913, 450);
+            this.ClientSize = new System.Drawing.Size(913, 646);
+            this.Controls.Add(this.btnRefreshFolders);
+            this.Controls.Add(this.btnCreateFolder);
+            this.Controls.Add(this.btnRename);
             this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.lblCurrentFolder);
             this.Controls.Add(this.btnUp);
@@ -370,5 +403,8 @@
         private System.Windows.Forms.Button btnUp;
         private System.Windows.Forms.Label lblCurrentFolder;
         private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Button btnRename;
+        private System.Windows.Forms.Button btnCreateFolder;
+        private System.Windows.Forms.Button btnRefreshFolders;
     }
 }
