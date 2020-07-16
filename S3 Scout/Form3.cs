@@ -588,6 +588,19 @@ namespace S3_Scout
                 lblBuckets.Text = "Buckets: " + intBucketCount.ToString();
             }
             bucketForm.Dispose();
+            /*
+             * 
+    string folderPath = "my-folder/sub-folder/";  
+      
+    PutObjectRequest request = new PutObjectRequest()  
+    {  
+        BucketName = _bucketName,  
+        Key = folderPath // <-- in S3 key represents a path  
+    };  
+      
+    PutObjectResponse response = client.PutObject(request);  
+            https://www.c-sharpcorner.com/blogs/working-with-files-and-folders-in-s3-using-aws-sdk-for-net
+*/
         }
     }
 }
