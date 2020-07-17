@@ -200,7 +200,7 @@ namespace S3_Scout
             }
             dgvFiles.Rows.Clear();
 
-            Bitmap bmpImage = null;
+            Bitmap bmpImage;
             for (int i = 0; i < intTotalRows; i++)
             {
                 string strObject = lstS3Objects[i + intPageNo * constMaxKeys].Key;
@@ -556,7 +556,7 @@ namespace S3_Scout
         {
             if (strTopLevelBucket == "")
             {
-                MessageBox.Show("Select a top bucket. Double-click on a bucket on the left.", "Error",
+                MessageBox.Show("Double-click on a bucket on the left.", "Select a top bucket",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
