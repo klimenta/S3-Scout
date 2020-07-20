@@ -339,6 +339,7 @@
             this.btnRefreshFolders.TabIndex = 25;
             this.btnRefreshFolders.Text = "Refresh";
             this.btnRefreshFolders.UseVisualStyleBackColor = true;
+            this.btnRefreshFolders.Click += new System.EventHandler(this.btnRefreshFolders_Click);
             // 
             // frmView
             // 

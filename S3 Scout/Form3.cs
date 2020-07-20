@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using Amazon.S3.IO;
+using System.Text.RegularExpressions;
 
 namespace S3_Scout
 {
@@ -487,6 +489,15 @@ namespace S3_Scout
             Application.DoEvents();
         }
 
+        private bool IsValidBucketName(string strBucketName)
+        {        
+            var regexItem = new Regex(@"(?=^.{1,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])$)");
+
+            if (regexItem.IsMatch(strBucketName)) return true;
+            else return false;
+            
+        }
+
         private void btnCreateBucket_Click(object sender, EventArgs e)
         {
             bucketForm = new frmAddBucket();
@@ -494,11 +505,24 @@ namespace S3_Scout
             bucketForm.ShowDialog();
             if (isValid)
             {
-               
+                if (!IsValidBucketName(bucketForm.strBucketName))
+                {
+                    MessageBox.Show("Invalid bucket name.", "Error creating object",
+                       MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 RegionEndpoint region = RegionEndpoint.GetBySystemName(bucketForm.strRegion);
                 try
                 {
-                    var client = new AmazonS3Client(strAccessKey, strSecretKey, region);                    
+                    var client = new AmazonS3Client(strAccessKey, strSecretKey, region);
+                    if (DoesS3ObjectExist(client, bucketForm.strBucketName, "/"))
+                    {
+                        bucketForm.Dispose();
+                        MessageBox.Show("Object already exist.", "Error creating bucket",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
                     PutBucketRequest request = new PutBucketRequest();
                     request.BucketName = bucketForm.strBucketName;
                     client.PutBucket(request);
@@ -552,6 +576,19 @@ namespace S3_Scout
             ListBuckets();
         }
 
+        private bool DoesS3ObjectExist(AmazonS3Client client, string strTopLevelBucket, string strObject)
+        {
+            S3FileInfo s3FileInfo = new Amazon.S3.IO.S3FileInfo(client, strTopLevelBucket, strObject);
+            if (s3FileInfo.Exists)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         private void btnCreateFolder_Click(object sender, EventArgs e)
         {
             if (strTopLevelBucket == "")
@@ -565,42 +602,45 @@ namespace S3_Scout
             bucketForm.ShowDialog();
             if (isValid)
             {
+                if (!IsValidBucketName(bucketForm.strBucketName))
+                {
+                    MessageBox.Show("Invalid folder name.", "Error creating object",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                var client = new AmazonS3Client(strAccessKey, strSecretKey);
+                if (DoesS3ObjectExist(client, strTopLevelBucket, strCurrentPrefix + bucketForm.strBucketName + "/"))
+                {
+                    bucketForm.Dispose();
+                    MessageBox.Show("Object already exists.", "Error creating object",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                PutObjectRequest request = new PutObjectRequest()
+                {
+                    BucketName = strTopLevelBucket,
+                    Key = strCurrentPrefix + bucketForm.strBucketName + "/" 
+                };
+                PutObjectResponse response = client.PutObject(request);
+                
+                LogEntry(FontStyle.Regular, bucketForm.strBucketName + " created.");
+                //dgvFiles.Rows.Add(bucketForm.strBucketName, bucketForm.strRegion, DateTime.Now.ToString());
+                Bitmap bmpImage;
+                bmpImage = Properties.Resources.folder;
+                bmpImage.Tag = "folder";
+                dgvFiles.Rows.Add(bmpImage, bucketForm.strBucketName, "STANDARD", "0", DateTime.Now.ToString());
 
-                RegionEndpoint region = RegionEndpoint.GetBySystemName(bucketForm.strRegion);
-                try
-                {
-                    var client = new AmazonS3Client(strAccessKey, strSecretKey, region);
-                    PutBucketRequest request = new PutBucketRequest();
-                    request.BucketName = bucketForm.strBucketName;
-                    client.PutBucket(request);
-                }
-                catch (AmazonS3Exception amazonS3Exception)
-                {
-                    if (amazonS3Exception.ErrorCode != null)
-                    {
-                        LogEntry(FontStyle.Regular, amazonS3Exception.Message);
-                        return;
-                    }
-                }
-                LogEntry(FontStyle.Regular, bucketForm.strBucketName + " created in " + bucketForm.strRegion);
-                dgvBuckets.Rows.Add(bucketForm.strBucketName, bucketForm.strRegion, DateTime.Now.ToString());
-                intBucketCount++;
-                lblBuckets.Text = "Buckets: " + intBucketCount.ToString();
+
             }
             bucketForm.Dispose();
             /*
-             * 
-    string folderPath = "my-folder/sub-folder/";  
-      
-    PutObjectRequest request = new PutObjectRequest()  
-    {  
-        BucketName = _bucketName,  
-        Key = folderPath // <-- in S3 key represents a path  
-    };  
-      
-    PutObjectResponse response = client.PutObject(request);  
             https://www.c-sharpcorner.com/blogs/working-with-files-and-folders-in-s3-using-aws-sdk-for-net
-*/
+            */
+        }
+
+        private void btnRefreshFolders_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
