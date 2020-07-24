@@ -100,7 +100,6 @@ namespace S3_Scout
 
         }
 
-
         private void frmView_Load(object sender, EventArgs e)
         {
             ListBuckets();
@@ -248,7 +247,6 @@ namespace S3_Scout
 
         }
 
-
         private void dgvBuckets_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
@@ -266,39 +264,50 @@ namespace S3_Scout
             LogEntry(FontStyle.Bold, "Download");
             int intDownloadedFiles = 1;
             int selectedCellCount = dgvFiles.SelectedRows.Count;
-            if (selectedCellCount > 0)
+            if (selectedCellCount > 1)
             {
+                MessageBox.Show("You can't download multiple objects.", "Download error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (selectedCellCount == 1)
+            {
+                string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
+                string strFileName = dgvFiles.Rows[dgvFiles.SelectedRows[0].Index].Cells[1].Value.ToString();
+                Bitmap bmpType = (Bitmap)dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[0].Value;
+                if ((string)bmpType.Tag == "folder")
+                {
+                    MessageBox.Show("You can't download folder objects.", "Download error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[1].Value.ToString();
-                    for (int i = 0; i < selectedCellCount; i++)
+                    string strFolderName = string.Empty;
+                    strFolderName = folderBrowserDialog1.SelectedPath;
+
+                    var token = tokenSource.Token;
+                    AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
+                    using (var transferUtility = new TransferUtility(awsS3Client))
                     {
-                        string strFileName = dgvFiles.Rows[dgvFiles.SelectedRows[i].Index].Cells[1].Value.ToString();
-                        string strFolderName = string.Empty;
-                        strFolderName = folderBrowserDialog1.SelectedPath;
-
-                        var token = tokenSource.Token;
-                        AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
-                        using (var transferUtility = new TransferUtility(awsS3Client))
+                        var downloadRequest = new TransferUtilityDownloadRequest
                         {
-                            var downloadRequest = new TransferUtilityDownloadRequest
-                            {
-                                BucketName = strBucketName,
-                                Key = strFileName,
-                                FilePath = @strFolderName + "\\" + strFileName
-                            };
-                            lblTransferredFiles.Text = intDownloadedFiles.ToString() + "/" + selectedCellCount.ToString();
-                            downloadRequest.WriteObjectProgressEvent += OnWriteObjectProgressEvent;
+                            BucketName = strBucketName,
+                            Key = strFileName,
+                            FilePath = @strFolderName + "\\" + strFileName
+                        };
+                        lblTransferredFiles.Text = intDownloadedFiles.ToString() + "/" + selectedCellCount.ToString();
+                        downloadRequest.WriteObjectProgressEvent += OnWriteObjectProgressEvent;
 
-                            intDownloadedFiles++;
-                            try
-                            {
-                                await transferUtility.DownloadAsync(downloadRequest, token);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(ex.Message.ToString());
-                            }
+                        intDownloadedFiles++;
+                        try
+                        {
+                            await transferUtility.DownloadAsync(downloadRequest, token);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message.ToString());
                         }
                     }
                 }
@@ -542,7 +551,6 @@ namespace S3_Scout
             }
             bucketForm.Dispose();
         }
-
 
         private void dgvFiles_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {                        
