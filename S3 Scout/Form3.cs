@@ -28,6 +28,7 @@ namespace S3_Scout
         public string strSecretKey = "";
         string strTopLevelBucket = "";
         string strCurrentPrefix = "";
+        string strDownloadName;
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();        
 
@@ -103,6 +104,8 @@ namespace S3_Scout
         private void frmView_Load(object sender, EventArgs e)
         {
             ListBuckets();
+            lblBevel.Height = 2;
+            dgvFiles.Columns[3].DefaultCellStyle.Format = "N0";
         }
 
         private List<cMyS3Object> GetAllS3Objects(string strFolder, string strPrefix)
@@ -243,7 +246,7 @@ namespace S3_Scout
                 ShowPage(intPage, lstS3Objects);
             }
             Cursor.Current = Cursors.Default;
-            lblCurrentFolder.Text = "L: " + PathShortener(strFolderName + "/" + strPrefix, 90);
+            lblCurrentFolder.Text = "Path: " + PathShortener(strFolderName + "/" + strPrefix, 70);
 
         }
 
@@ -261,7 +264,7 @@ namespace S3_Scout
         private async void btnDownload_Click(object sender, EventArgs e)
         {
             progressBar1.Value = 0;
-            LogEntry(FontStyle.Bold, "Download");
+            
             int intDownloadedFiles = 1;
             int selectedCellCount = dgvFiles.SelectedRows.Count;
             if (selectedCellCount > 1)
@@ -273,7 +276,7 @@ namespace S3_Scout
             if (selectedCellCount == 1)
             {
                 string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
-                string strFileName = dgvFiles.Rows[dgvFiles.SelectedRows[0].Index].Cells[1].Value.ToString();
+                strDownloadName = dgvFiles.Rows[dgvFiles.SelectedRows[0].Index].Cells[1].Value.ToString();
                 Bitmap bmpType = (Bitmap)dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[0].Value;
                 if ((string)bmpType.Tag == "folder")
                 {
@@ -294,12 +297,12 @@ namespace S3_Scout
                         var downloadRequest = new TransferUtilityDownloadRequest
                         {
                             BucketName = strBucketName,
-                            Key = strFileName,
-                            FilePath = @strFolderName + "\\" + strFileName
+                            Key = strCurrentPrefix + strDownloadName,
+                            FilePath = @strFolderName + "\\" + strDownloadName
                         };
-                        lblTransferredFiles.Text = intDownloadedFiles.ToString() + "/" + selectedCellCount.ToString();
+                        
                         downloadRequest.WriteObjectProgressEvent += OnWriteObjectProgressEvent;
-
+                        LogEntry(FontStyle.Regular, strDownloadName + " download started...");
                         intDownloadedFiles++;
                         try
                         {
@@ -319,16 +322,26 @@ namespace S3_Scout
             // Process progress update events.
             progressBar1.BeginInvoke(new Action(() => progressBar1.Value = e.PercentDone));
             //e.transferredbytes and e.totalbytes  
-
-            lblTransferredBytes.Invoke(new Action(() => { lblTransferredBytes.Text = e.TransferredBytes.ToString() + "/" + e.TotalBytes.ToString(); }));
+            if (e.PercentDone == 100)
+            {
+                Invoke(new Action(() =>
+                {
+                    LogEntry(FontStyle.Regular, strDownloadName + " download finished...");
+                }));
+            }
+            lblTransferredBytes.Invoke(new Action(() => { 
+                lblTransferredBytes.Text = "Transferred: " + String.Format("{0:n0}", e.TransferredBytes) + " / " + String.Format("{0:n0}", e.TotalBytes); 
+            }));
             Application.DoEvents();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
             //token.ThrowIfCancellationRequested();
+            LogEntry(FontStyle.Bold, "Download cancelled.");
             progressBar1.Value = 0;
             tokenSource.Cancel();
+            lblTransferredBytes.Text = "Transferred: 0/0";
         }
 
         private void btnNext_Click(object sender, EventArgs e)
@@ -471,7 +484,7 @@ namespace S3_Scout
                                 Key = strFileNames[intFileCount],
                                 FilePath = strFilePathName
                             };
-                            lblTransferredFiles.Text = intUploadedFiles.ToString() + "/" + intTotalFiles.ToString();
+                            
                             uploadRequest.UploadProgressEvent += OnUploadObjectProgressEvent;
                             intUploadedFiles++;
                             try
@@ -647,6 +660,36 @@ namespace S3_Scout
         }
 
         private void btnRefreshFolders_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void rbLogs_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void lblTransferredBytes_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panCancel_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void dgvFiles_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void dgvBuckets_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
         }
