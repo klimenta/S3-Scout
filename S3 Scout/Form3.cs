@@ -459,49 +459,40 @@ namespace S3_Scout
         {
             progressBar1.Value = 0;
             int intUploadedFiles = 1;
-            int selectedCellCount = dgvBuckets.SelectedRows.Count;
-            if (selectedCellCount == 1)
+            
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
-
-                if (openFileDialog1.ShowDialog() == DialogResult.OK)
+                int intFileCount = 0;
+                foreach (string strFilePathName in openFileDialog1.FileNames)
                 {
-                    int intFileCount = 0;
-                    foreach (string strFilePathName in openFileDialog1.FileNames)
+                    int intTotalFiles = openFileDialog1.FileNames.Length;
+
+                    string[] strFileNames = openFileDialog1.SafeFileNames;                    
+                    var token = tokenSource.Token;
+                    AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
+                    using (var transferUtility = new TransferUtility(awsS3Client))
                     {
-
-                        int intTotalFiles = openFileDialog1.FileNames.Length;
-
-                        string[] strFileNames = openFileDialog1.SafeFileNames;
-                        //MessageBox.Show(file);
-                        var token = tokenSource.Token;
-                        AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
-                        using (var transferUtility = new TransferUtility(awsS3Client))
+                        var uploadRequest = new TransferUtilityUploadRequest
                         {
-                            var uploadRequest = new TransferUtilityUploadRequest
-                            {
-                                BucketName = strBucketName,
-                                Key = strFileNames[intFileCount],
-                                FilePath = strFilePathName
-                            };
+                            BucketName = strTopLevelBucket,
+                            Key = strCurrentPrefix + strFileNames[intFileCount],
+                            FilePath = strFilePathName
+                        };
                             
-                            uploadRequest.UploadProgressEvent += OnUploadObjectProgressEvent;
-                            intUploadedFiles++;
-                            try
-                            {
-                                await transferUtility.UploadAsync(uploadRequest, token);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(ex.Message.ToString());
-                            }
+                        uploadRequest.UploadProgressEvent += OnUploadObjectProgressEvent;
+                        intUploadedFiles++;
+                        try
+                        {
+                            await transferUtility.UploadAsync(uploadRequest, token);
                         }
-                        intFileCount++;
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message.ToString());
+                        }
                     }
+                    intFileCount++;
                 }
-                Refresh(strBucketName,"");
-            }
-
+             }                         
         }
 
         void OnUploadObjectProgressEvent(object sender, UploadProgressArgs e)
@@ -661,7 +652,17 @@ namespace S3_Scout
 
         private void btnRefreshFolders_Click(object sender, EventArgs e)
         {
-
+            string strRefreshPrefix;
+            if (strCurrentPrefix != "")
+            {
+                strRefreshPrefix = strCurrentPrefix.Remove(strCurrentPrefix.Length - 1, 1);
+            }
+            else
+            {
+                strRefreshPrefix = "";
+            }
+            Refresh(strTopLevelBucket, strRefreshPrefix);            
+            LogEntry(FontStyle.Regular, "Refresh completed.");                       
         }
 
         private void rbLogs_TextChanged(object sender, EventArgs e)
@@ -679,19 +680,6 @@ namespace S3_Scout
 
         }
 
-        private void panCancel_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void dgvFiles_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void dgvBuckets_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
+      
     }
 }
