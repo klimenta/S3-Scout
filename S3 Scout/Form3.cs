@@ -30,7 +30,7 @@ namespace S3_Scout
         string strCurrentPrefix = "";
         string strDownloadName;
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();        
+        List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();
 
         [DllImport("shlwapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
         internal static extern bool PathCompactPathEx(System.Text.StringBuilder pszOut, string pszSrc, Int32 cchMax, Int32 dwFlags);
@@ -39,12 +39,12 @@ namespace S3_Scout
         {
             StringBuilder sb = new StringBuilder(260);
             if (PathCompactPathEx(sb, Path, DesiredLength + 1, 0))
-            { 
-                return sb.ToString(); 
+            {
+                return sb.ToString();
             }
             else
-            { 
-                return Path; 
+            {
+                return Path;
             }
         }
 
@@ -130,13 +130,13 @@ namespace S3_Scout
                 //This returns folders only
                 if (strPrefix == "")
                 {
-                    folders = lstResponse.S3Objects.Where(x => x.Key.EndsWith(@"/") && x.Size == 0 
+                    folders = lstResponse.S3Objects.Where(x => x.Key.EndsWith(@"/") && x.Size == 0
                                                             && x.Key.Count(f => (f == cFolderDelimiter)) == 1);
                 }
                 else
                 {
-                    folders = lstResponse.S3Objects.Where(x => x.Key.Substring(strPrefix.Length + 1).EndsWith(@"/") 
-                                                            && x.Size == 0 
+                    folders = lstResponse.S3Objects.Where(x => x.Key.Substring(strPrefix.Length + 1).EndsWith(@"/")
+                                                            && x.Size == 0
                                                             && x.Key.Substring(strPrefix.Length + 1).Count(f => (f == cFolderDelimiter)) == 1);
                 }
                 //This returns files only 
@@ -146,8 +146,8 @@ namespace S3_Scout
                 }
                 else
                 {
-                    files = lstResponse.S3Objects.Where(x => x.Key.Substring(strPrefix.Length + 1).Count(f => f == cFolderDelimiter) == 0 
-                                                        && x.Key.Substring(strPrefix.Length +1) != "");
+                    files = lstResponse.S3Objects.Where(x => x.Key.Substring(strPrefix.Length + 1).Count(f => f == cFolderDelimiter) == 0
+                                                        && x.Key.Substring(strPrefix.Length + 1) != "");
                 }
                 foreach (S3Object obj in folders)
                 {
@@ -183,7 +183,7 @@ namespace S3_Scout
                     MyS3ObjectFile.Folder = false;
                     lstS3Objects.Add(MyS3ObjectFile);
                 }
-             
+
 
                 lstRequest.ContinuationToken = lstResponse.NextContinuationToken;
             } while (lstResponse.IsTruncated);
@@ -255,16 +255,16 @@ namespace S3_Scout
             string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
             strTopLevelBucket = strBucketName;
             strCurrentPrefix = "";
-            
+
             Refresh(strBucketName, strCurrentPrefix);
-            
+
             LogEntry(FontStyle.Regular, strTopLevelBucket + " list completed.");
         }
 
         private async void btnDownload_Click(object sender, EventArgs e)
         {
             progressBar1.Value = 0;
-            
+
             int intDownloadedFiles = 1;
             int selectedCellCount = dgvFiles.SelectedRows.Count;
             if (selectedCellCount > 1)
@@ -300,7 +300,7 @@ namespace S3_Scout
                             Key = strCurrentPrefix + strDownloadName,
                             FilePath = @strFolderName + "\\" + strDownloadName
                         };
-                        
+
                         downloadRequest.WriteObjectProgressEvent += OnWriteObjectProgressEvent;
                         LogEntry(FontStyle.Regular, strDownloadName + " download started...");
                         intDownloadedFiles++;
@@ -329,8 +329,8 @@ namespace S3_Scout
                     LogEntry(FontStyle.Regular, strDownloadName + " download finished...");
                 }));
             }
-            lblTransferredBytes.Invoke(new Action(() => { 
-                lblTransferredBytes.Text = "Transferred: " + String.Format("{0:n0}", e.TransferredBytes) + " / " + String.Format("{0:n0}", e.TotalBytes); 
+            lblTransferredBytes.Invoke(new Action(() => {
+                lblTransferredBytes.Text = "Transferred: " + String.Format("{0:n0}", e.TransferredBytes) + " / " + String.Format("{0:n0}", e.TotalBytes);
             }));
             Application.DoEvents();
         }
@@ -384,7 +384,7 @@ namespace S3_Scout
 
                         return;
                     }
-                    
+
                     catch (AmazonS3Exception ex)
                     {
                         if (!ex.ErrorCode.Equals("BucketNotEmpty"))
@@ -459,7 +459,7 @@ namespace S3_Scout
         {
             progressBar1.Value = 0;
             int intUploadedFiles = 1;
-            
+
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 int intFileCount = 0;
@@ -467,7 +467,7 @@ namespace S3_Scout
                 {
                     int intTotalFiles = openFileDialog1.FileNames.Length;
 
-                    string[] strFileNames = openFileDialog1.SafeFileNames;                    
+                    string[] strFileNames = openFileDialog1.SafeFileNames;
                     var token = tokenSource.Token;
                     AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
                     using (var transferUtility = new TransferUtility(awsS3Client))
@@ -478,7 +478,7 @@ namespace S3_Scout
                             Key = strCurrentPrefix + strFileNames[intFileCount],
                             FilePath = strFilePathName
                         };
-                            
+
                         uploadRequest.UploadProgressEvent += OnUploadObjectProgressEvent;
                         intUploadedFiles++;
                         try
@@ -492,7 +492,7 @@ namespace S3_Scout
                     }
                     intFileCount++;
                 }
-             }                         
+            }
         }
 
         void OnUploadObjectProgressEvent(object sender, UploadProgressArgs e)
@@ -503,12 +503,12 @@ namespace S3_Scout
         }
 
         private bool IsValidBucketName(string strBucketName)
-        {        
+        {
             var regexItem = new Regex(@"(?=^.{1,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])$)");
 
             if (regexItem.IsMatch(strBucketName)) return true;
             else return false;
-            
+
         }
 
         private void btnCreateBucket_Click(object sender, EventArgs e)
@@ -557,13 +557,13 @@ namespace S3_Scout
         }
 
         private void dgvFiles_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {                        
+        {
             string strBucketName = dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[1].Value.ToString();
             Bitmap bmpType = (Bitmap)dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[0].Value;
             if ((string)bmpType.Tag == "folder")
             {
                 Refresh(strTopLevelBucket, strCurrentPrefix + strBucketName);
-                
+
                 strCurrentPrefix = strCurrentPrefix + strBucketName + "/";
 
                 LogEntry(FontStyle.Regular, strBucketName + " list completed.");
@@ -631,10 +631,10 @@ namespace S3_Scout
                 PutObjectRequest request = new PutObjectRequest()
                 {
                     BucketName = strTopLevelBucket,
-                    Key = strCurrentPrefix + bucketForm.strBucketName + "/" 
+                    Key = strCurrentPrefix + bucketForm.strBucketName + "/"
                 };
                 PutObjectResponse response = client.PutObject(request);
-                
+
                 LogEntry(FontStyle.Regular, bucketForm.strBucketName + " created.");
                 //dgvFiles.Rows.Add(bucketForm.strBucketName, bucketForm.strRegion, DateTime.Now.ToString());
                 Bitmap bmpImage;
@@ -661,13 +661,58 @@ namespace S3_Scout
             {
                 strRefreshPrefix = "";
             }
-            Refresh(strTopLevelBucket, strRefreshPrefix);            
-            LogEntry(FontStyle.Regular, "Refresh completed.");                       
+            Refresh(strTopLevelBucket, strRefreshPrefix);
+            LogEntry(FontStyle.Regular, "Refresh completed.");
         }
 
-        private void btnDeleteFile_Click(object sender, EventArgs e)
+        private async void btnDeleteFile_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Delete");
+
+            //progressBar1.Value = 0;
+
+            //int intDeletedFiles = 1;
+            int intselectedCellCount = dgvFiles.SelectedRows.Count;
+            if (intselectedCellCount == 0)
+            {
+                MessageBox.Show("Please select object(s).", "Delete error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            DialogResult dialogResult = MessageBox.Show("Object(s) will be deleted. Are you sure?", "Delete S3 Objects", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.Yes)
+            {
+                foreach (DataGridViewRow r in dgvFiles.SelectedRows)
+                {
+                    string strDeleteName = r.Cells[1].Value.ToString();
+                    Bitmap bmpType = (Bitmap)r.Cells[0].Value;
+                    if ((string)bmpType.Tag == "folder")
+                    {
+                        strDeleteName = strDeleteName + "/";
+                    }
+
+                    AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
+                    try
+                    {
+                        var deleteObjectRequest = new DeleteObjectRequest
+                        {
+                            BucketName = strTopLevelBucket,
+                            Key = strCurrentPrefix + strDeleteName
+                        };
+                        await awsS3Client.DeleteObjectAsync(deleteObjectRequest);
+                        LogEntry(FontStyle.Regular, strDeleteName + " deleted.");
+                    }
+                    catch (AmazonS3Exception ex)
+                    {
+                        MessageBox.Show("Error encountered on server. Message:'{0}' when deleting an object", ex.Message,
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Unknown error encountered on server. Message:'{0}' when deleting an object", ex.Message,
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
         }
     }
 }
