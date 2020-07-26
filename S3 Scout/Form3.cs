@@ -665,21 +665,9 @@ namespace S3_Scout
             LogEntry(FontStyle.Regular, "Refresh completed.");                       
         }
 
-        private void rbLogs_TextChanged(object sender, EventArgs e)
+        private void btnDeleteFile_Click(object sender, EventArgs e)
         {
-
+            MessageBox.Show("Delete");
         }
-
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void lblTransferredBytes_Click(object sender, EventArgs e)
-        {
-
-        }
-
-      
     }
 }

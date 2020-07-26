@@ -35,6 +35,11 @@
             this.colRegion = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colBucketDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvFiles = new System.Windows.Forms.DataGridView();
+            this.colType = new System.Windows.Forms.DataGridViewImageColumn();
+            this.colObjectName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colStorageClass = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colObjSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colObjDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnDownload = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
@@ -56,11 +61,6 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.lblBevel = new System.Windows.Forms.Label();
-            this.colType = new System.Windows.Forms.DataGridViewImageColumn();
-            this.colObjectName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colStorageClass = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colObjSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colObjDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBuckets)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFiles)).BeginInit();
             this.SuspendLayout();
@@ -124,6 +124,38 @@
             this.dgvFiles.TabIndex = 3;
             this.dgvFiles.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvFiles_CellDoubleClick);
             // 
+            // colType
+            // 
+            this.colType.HeaderText = "Type";
+            this.colType.Name = "colType";
+            this.colType.ReadOnly = true;
+            this.colType.Width = 35;
+            // 
+            // colObjectName
+            // 
+            this.colObjectName.HeaderText = "File Name";
+            this.colObjectName.Name = "colObjectName";
+            this.colObjectName.ReadOnly = true;
+            // 
+            // colStorageClass
+            // 
+            this.colStorageClass.HeaderText = "Storage Class";
+            this.colStorageClass.Name = "colStorageClass";
+            this.colStorageClass.ReadOnly = true;
+            // 
+            // colObjSize
+            // 
+            this.colObjSize.HeaderText = "Size (bytes)";
+            this.colObjSize.Name = "colObjSize";
+            this.colObjSize.ReadOnly = true;
+            // 
+            // colObjDate
+            // 
+            this.colObjDate.HeaderText = "Date Modified";
+            this.colObjDate.Name = "colObjDate";
+            this.colObjDate.ReadOnly = true;
+            this.colObjDate.Width = 130;
+            // 
             // btnDownload
             // 
             this.btnDownload.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -155,7 +187,6 @@
             this.rbLogs.Size = new System.Drawing.Size(988, 106);
             this.rbLogs.TabIndex = 9;
             this.rbLogs.Text = "";
-            this.rbLogs.TextChanged += new System.EventHandler(this.rbLogs_TextChanged);
             // 
             // btnPrev
             // 
@@ -226,6 +257,7 @@
             this.btnDeleteFile.TabIndex = 17;
             this.btnDeleteFile.Text = "-";
             this.btnDeleteFile.UseVisualStyleBackColor = true;
+            this.btnDeleteFile.Click += new System.EventHandler(this.btnDeleteFile_Click);
             // 
             // openFileDialog1
             // 
@@ -303,7 +335,6 @@
             this.lblTransferredBytes.Size = new System.Drawing.Size(84, 13);
             this.lblTransferredBytes.TabIndex = 18;
             this.lblTransferredBytes.Text = "Transferred: 0/0";
-            this.lblTransferredBytes.Click += new System.EventHandler(this.lblTransferredBytes_Click);
             // 
             // progressBar1
             // 
@@ -321,38 +352,6 @@
             this.lblBevel.Size = new System.Drawing.Size(993, 10);
             this.lblBevel.TabIndex = 26;
             this.lblBevel.Text = "label1";
-            // 
-            // colType
-            // 
-            this.colType.HeaderText = "Type";
-            this.colType.Name = "colType";
-            this.colType.ReadOnly = true;
-            this.colType.Width = 35;
-            // 
-            // colObjectName
-            // 
-            this.colObjectName.HeaderText = "File Name";
-            this.colObjectName.Name = "colObjectName";
-            this.colObjectName.ReadOnly = true;
-            // 
-            // colStorageClass
-            // 
-            this.colStorageClass.HeaderText = "Storage Class";
-            this.colStorageClass.Name = "colStorageClass";
-            this.colStorageClass.ReadOnly = true;
-            // 
-            // colObjSize
-            // 
-            this.colObjSize.HeaderText = "Size (bytes)";
-            this.colObjSize.Name = "colObjSize";
-            this.colObjSize.ReadOnly = true;
-            // 
-            // colObjDate
-            // 
-            this.colObjDate.HeaderText = "Date Modified";
-            this.colObjDate.Name = "colObjDate";
-            this.colObjDate.ReadOnly = true;
-            this.colObjDate.Width = 130;
             // 
             // frmView
             // 
