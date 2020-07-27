@@ -480,6 +480,7 @@ namespace S3_Scout
                         };
 
                         uploadRequest.UploadProgressEvent += OnUploadObjectProgressEvent;
+                        LogEntry(FontStyle.Regular, strFileNames[intFileCount] + " uploaded.");
                         intUploadedFiles++;
                         try
                         {
