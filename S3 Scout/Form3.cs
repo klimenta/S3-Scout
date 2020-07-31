@@ -19,6 +19,7 @@ namespace S3_Scout
     {
         public static bool isValid;
         frmAddBucket bucketForm;
+        bool bAccountError;
         int intPage = 0;
         int intBucketCount = 0;
         const int constMaxKeys = 1000;
@@ -78,32 +79,48 @@ namespace S3_Scout
             intBucketCount = 0;
             Cursor.Current = Cursors.WaitCursor;
             AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
-            ListBucketsResponse response = awsS3Client.ListBuckets();
 
-            foreach (S3Bucket bucket in response.Buckets)
+            try
             {
-                GetBucketLocationRequest bucketrequest = new GetBucketLocationRequest
+                bAccountError = false;
+                ListBucketsResponse response = awsS3Client.ListBuckets();
+                foreach (S3Bucket bucket in response.Buckets)
                 {
-                    BucketName = bucket.BucketName
-                };
-                GetBucketLocationResponse bucketresponse = awsS3Client.GetBucketLocation(bucketrequest);
-                string strRegion = bucketresponse.Location;
-                if (strRegion == "")
-                {
-                    strRegion = "us-east-1";
-                }
+                    GetBucketLocationRequest bucketrequest = new GetBucketLocationRequest
+                    {
+                        BucketName = bucket.BucketName
+                    };
+                    GetBucketLocationResponse bucketresponse = awsS3Client.GetBucketLocation(bucketrequest);
+                    string strRegion = bucketresponse.Location;
+                    if (strRegion == "")
+                    {
+                        strRegion = "us-east-1";
+                    }
 
-                dgvBuckets.Rows.Add(bucket.BucketName, strRegion, bucket.CreationDate);
-                intBucketCount++;
+                    dgvBuckets.Rows.Add(bucket.BucketName, strRegion, bucket.CreationDate);
+                    intBucketCount++;
+                }
+                lblBuckets.Text = "Buckets: " + intBucketCount.ToString();
+                Cursor.Current = Cursors.Default;
             }
-            lblBuckets.Text = "Buckets: " + intBucketCount.ToString();
-            Cursor.Current = Cursors.Default;
+            catch (Exception ex)
+            {                
+                MessageBox.Show(ex.Message.ToString(), "Account error",
+                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+                bAccountError = true;
+            }
+  
 
         }
 
         private void frmView_Load(object sender, EventArgs e)
         {
             ListBuckets();
+            if (bAccountError)
+            {
+                this.Close();
+                return;
+            }
             lblBevel.Height = 2;
             dgvFiles.Columns[3].DefaultCellStyle.Format = "N0";
         }

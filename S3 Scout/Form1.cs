@@ -122,7 +122,7 @@ namespace S3_Scout
                 string strAccountName = "Account: " + dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[0].Value.ToString();
                 if (frmOpened.Text == strAccountName)
                 {
-                    MessageBox.Show("You already have " + strAccountName + " opened.", "Duplicate account", 
+                    MessageBox.Show("You already have " + strAccountName + " opened.", "Account error", 
                                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
@@ -238,8 +238,14 @@ namespace S3_Scout
 
         private void dgvAccounts_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            ViewS3();
+            //MessageBox.Show("asdF");
+            //ViewS3();
         }
 
+        private void dgvAccounts_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            MessageBox.Show("dbl");
+            ViewS3();
+        }
     }
 }

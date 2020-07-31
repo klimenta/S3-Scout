@@ -38,10 +38,11 @@
             this.btnEdit = new System.Windows.Forms.Button();
             this.btnNew = new System.Windows.Forms.Button();
             this.dgvAccounts = new System.Windows.Forms.DataGridView();
+            this.ttipAbout = new System.Windows.Forms.ToolTip(this.components);
             this.colAccountName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colAccessKey = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colSecretKey = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ttipAbout = new System.Windows.Forms.ToolTip(this.components);
+            this.colPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tlpAccounts.SuspendLayout();
             this.pnlMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAccounts)).BeginInit();
@@ -59,7 +60,7 @@
             this.tlpAccounts.Name = "tlpAccounts";
             this.tlpAccounts.RowCount = 1;
             this.tlpAccounts.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpAccounts.Size = new System.Drawing.Size(901, 321);
+            this.tlpAccounts.Size = new System.Drawing.Size(899, 321);
             this.tlpAccounts.TabIndex = 0;
             // 
             // pnlMain
@@ -138,15 +139,17 @@
             this.dgvAccounts.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.colAccountName,
             this.colAccessKey,
-            this.colSecretKey});
+            this.colSecretKey,
+            this.colPath});
             this.dgvAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvAccounts.Location = new System.Drawing.Point(203, 3);
             this.dgvAccounts.Name = "dgvAccounts";
             this.dgvAccounts.ReadOnly = true;
             this.dgvAccounts.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvAccounts.Size = new System.Drawing.Size(695, 315);
+            this.dgvAccounts.Size = new System.Drawing.Size(693, 315);
             this.dgvAccounts.TabIndex = 1;
             this.dgvAccounts.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvAccounts_CellContentClick);
+            this.dgvAccounts.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvAccounts_CellContentDoubleClick);
             this.dgvAccounts.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvAccounts_CellFormatting);
             // 
             // colAccountName
@@ -168,11 +171,18 @@
             this.colSecretKey.Name = "colSecretKey";
             this.colSecretKey.ReadOnly = true;
             // 
+            // colPath
+            // 
+            this.colPath.FillWeight = 75F;
+            this.colPath.HeaderText = "Path";
+            this.colPath.Name = "colPath";
+            this.colPath.ReadOnly = true;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(901, 321);
+            this.ClientSize = new System.Drawing.Size(899, 321);
             this.Controls.Add(this.tlpAccounts);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(500, 360);
@@ -200,8 +210,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colAccountName;
         private System.Windows.Forms.DataGridViewTextBoxColumn colAccessKey;
         private System.Windows.Forms.DataGridViewTextBoxColumn colSecretKey;
-
-
+        private System.Windows.Forms.DataGridViewTextBoxColumn colPath;
     }
 }
 
