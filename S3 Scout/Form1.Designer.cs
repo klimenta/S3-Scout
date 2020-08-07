@@ -42,7 +42,7 @@
             this.colAccountName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colAccessKey = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colSecretKey = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colPrefix = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tlpAccounts.SuspendLayout();
             this.pnlMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAccounts)).BeginInit();
@@ -140,7 +140,7 @@
             this.colAccountName,
             this.colAccessKey,
             this.colSecretKey,
-            this.colPath});
+            this.colPrefix});
             this.dgvAccounts.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvAccounts.Location = new System.Drawing.Point(203, 3);
             this.dgvAccounts.Name = "dgvAccounts";
@@ -171,12 +171,12 @@
             this.colSecretKey.Name = "colSecretKey";
             this.colSecretKey.ReadOnly = true;
             // 
-            // colPath
+            // colPrefix
             // 
-            this.colPath.FillWeight = 75F;
-            this.colPath.HeaderText = "Path";
-            this.colPath.Name = "colPath";
-            this.colPath.ReadOnly = true;
+            this.colPrefix.FillWeight = 75F;
+            this.colPrefix.HeaderText = "Prefix";
+            this.colPrefix.Name = "colPrefix";
+            this.colPrefix.ReadOnly = true;
             // 
             // frmMain
             // 
@@ -210,7 +210,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colAccountName;
         private System.Windows.Forms.DataGridViewTextBoxColumn colAccessKey;
         private System.Windows.Forms.DataGridViewTextBoxColumn colSecretKey;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colPath;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colPrefix;
     }
 }
 

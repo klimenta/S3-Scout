@@ -31,9 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmView));
             this.dgvBuckets = new System.Windows.Forms.DataGridView();
-            this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colRegion = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colBucketDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvFiles = new System.Windows.Forms.DataGridView();
             this.colType = new System.Windows.Forms.DataGridViewImageColumn();
             this.colObjectName = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -61,6 +58,9 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.lblBevel = new System.Windows.Forms.Label();
+            this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colRegion = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colBucketDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBuckets)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFiles)).BeginInit();
             this.SuspendLayout();
@@ -83,26 +83,6 @@
             this.dgvBuckets.Size = new System.Drawing.Size(466, 273);
             this.dgvBuckets.TabIndex = 2;
             this.dgvBuckets.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvBuckets_CellDoubleClick);
-            // 
-            // colName
-            // 
-            this.colName.HeaderText = "Bucket Name";
-            this.colName.Name = "colName";
-            this.colName.ReadOnly = true;
-            this.colName.Width = 150;
-            // 
-            // colRegion
-            // 
-            this.colRegion.HeaderText = "Region";
-            this.colRegion.Name = "colRegion";
-            this.colRegion.ReadOnly = true;
-            // 
-            // colBucketDate
-            // 
-            this.colBucketDate.HeaderText = "Bucket Date";
-            this.colBucketDate.Name = "colBucketDate";
-            this.colBucketDate.ReadOnly = true;
-            this.colBucketDate.Width = 150;
             // 
             // dgvFiles
             // 
@@ -170,6 +150,7 @@
             // 
             // btnCancel
             // 
+            this.btnCancel.Enabled = false;
             this.btnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCancel.Location = new System.Drawing.Point(963, 390);
             this.btnCancel.Name = "btnCancel";
@@ -256,6 +237,7 @@
             this.btnDeleteFile.Size = new System.Drawing.Size(40, 40);
             this.btnDeleteFile.TabIndex = 17;
             this.btnDeleteFile.Text = "-";
+            this.toolTip1.SetToolTip(this.btnDeleteFile, "Delete folder");
             this.btnDeleteFile.UseVisualStyleBackColor = true;
             this.btnDeleteFile.Click += new System.EventHandler(this.btnDeleteFile_Click);
             // 
@@ -313,6 +295,7 @@
             this.btnCreateFolder.Size = new System.Drawing.Size(40, 40);
             this.btnCreateFolder.TabIndex = 24;
             this.btnCreateFolder.Text = "+";
+            this.toolTip1.SetToolTip(this.btnCreateFolder, "Create folder");
             this.btnCreateFolder.UseVisualStyleBackColor = true;
             this.btnCreateFolder.Click += new System.EventHandler(this.btnCreateFolder_Click);
             // 
@@ -324,6 +307,7 @@
             this.btnRefreshFolders.Size = new System.Drawing.Size(40, 40);
             this.btnRefreshFolders.TabIndex = 25;
             this.btnRefreshFolders.Text = "⟳";
+            this.toolTip1.SetToolTip(this.btnRefreshFolders, "Refresh");
             this.btnRefreshFolders.UseVisualStyleBackColor = true;
             this.btnRefreshFolders.Click += new System.EventHandler(this.btnRefreshFolders_Click);
             // 
@@ -352,6 +336,26 @@
             this.lblBevel.Size = new System.Drawing.Size(993, 10);
             this.lblBevel.TabIndex = 26;
             this.lblBevel.Text = "label1";
+            // 
+            // colName
+            // 
+            this.colName.HeaderText = "Bucket Name";
+            this.colName.Name = "colName";
+            this.colName.ReadOnly = true;
+            this.colName.Width = 170;
+            // 
+            // colRegion
+            // 
+            this.colRegion.HeaderText = "Region";
+            this.colRegion.Name = "colRegion";
+            this.colRegion.ReadOnly = true;
+            // 
+            // colBucketDate
+            // 
+            this.colBucketDate.HeaderText = "Bucket Date";
+            this.colBucketDate.Name = "colBucketDate";
+            this.colBucketDate.ReadOnly = true;
+            this.colBucketDate.Width = 150;
             // 
             // frmView
             // 
@@ -414,14 +418,14 @@
         private System.Windows.Forms.Label lblTransferredBytes;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colRegion;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colBucketDate;
         private System.Windows.Forms.Label lblBevel;
         private System.Windows.Forms.DataGridViewImageColumn colType;
         private System.Windows.Forms.DataGridViewTextBoxColumn colObjectName;
         private System.Windows.Forms.DataGridViewTextBoxColumn colStorageClass;
         private System.Windows.Forms.DataGridViewTextBoxColumn colObjSize;
         private System.Windows.Forms.DataGridViewTextBoxColumn colObjDate;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colRegion;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colBucketDate;
     }
 }

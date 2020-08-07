@@ -27,6 +27,7 @@ namespace S3_Scout
         int intTotalPages = 0;
         public string strAccessKey = "";
         public string strSecretKey = "";
+        public string strPrefix = "";
         string strTopLevelBucket = "";
         string strCurrentPrefix = "";
         string strDownloadName;
@@ -73,11 +74,34 @@ namespace S3_Scout
             InitializeComponent();
         }
 
+        private string GetBucketLocation(string strPrefix)
+        {
+            AmazonS3Client client = new AmazonS3Client(strAccessKey, strSecretKey);
+            GetBucketLocationRequest request = new GetBucketLocationRequest
+            {
+                BucketName = strPrefix
+            };
+            GetBucketLocationResponse response = client.GetBucketLocation(request);
+            return response.Location;
+        }
+
         private void ListBuckets()
         {
             dgvBuckets.Rows.Clear();
             intBucketCount = 0;
             Cursor.Current = Cursors.WaitCursor;
+            if (strPrefix != "")
+            {                
+                string strRegion = GetBucketLocation(strPrefix);
+                if (strRegion == "")
+                {
+                    strRegion = "us-east-1";
+                }
+                //GetBucketDate(strPrefix);
+                dgvBuckets.Rows.Add(strPrefix, strRegion, "NO DATA");
+                Refresh(strPrefix, "");
+                return;
+            }
             AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
 
             try
@@ -317,7 +341,7 @@ namespace S3_Scout
                             Key = strCurrentPrefix + strDownloadName,
                             FilePath = @strFolderName + "\\" + strDownloadName
                         };
-
+                        btnCancel.Enabled = true;
                         downloadRequest.WriteObjectProgressEvent += OnWriteObjectProgressEvent;
                         LogEntry(FontStyle.Regular, strDownloadName + " download started...");
                         intDownloadedFiles++;
@@ -328,6 +352,7 @@ namespace S3_Scout
                         catch (Exception ex)
                         {
                             MessageBox.Show(ex.Message.ToString());
+                            btnCancel.Enabled = false;
                         }
                     }
                 }
@@ -345,9 +370,11 @@ namespace S3_Scout
                 {
                     LogEntry(FontStyle.Regular, strDownloadName + " download finished...");
                 }));
+                btnCancel.Enabled = false;
             }
             lblTransferredBytes.Invoke(new Action(() => {
-                lblTransferredBytes.Text = "Transferred: " + String.Format("{0:n0}", e.TransferredBytes) + " / " + String.Format("{0:n0}", e.TotalBytes);
+                lblTransferredBytes.Text = "Transferred: " + String.Format("{0:n0}", e.TransferredBytes) 
+                    + " / " + String.Format("{0:n0}", e.TotalBytes);
             }));
             Application.DoEvents();
         }
@@ -355,10 +382,11 @@ namespace S3_Scout
         private void btnCancel_Click(object sender, EventArgs e)
         {
             //token.ThrowIfCancellationRequested();
+            tokenSource.Cancel();
             LogEntry(FontStyle.Bold, "Download cancelled.");
             progressBar1.Value = 0;
-            tokenSource.Cancel();
             lblTransferredBytes.Text = "Transferred: 0/0";
+            
         }
 
         private void btnNext_Click(object sender, EventArgs e)

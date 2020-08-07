@@ -8,6 +8,7 @@ namespace S3_Scout
         public string strAccountName = "";
         public string strAccessKey = "";
         public string strSecretKey = "";
+        public string strPrefix = "";
 
         public frmAddAccount()
         {
@@ -27,9 +28,11 @@ namespace S3_Scout
             strAccountName = txtAccountName.Text.Trim();
             strAccessKey = txtAccessKey.Text.Trim();
             strSecretKey = txtSecretKey.Text.Trim();
+            strPrefix = txtPrefix.Text.Trim();
             if (string.IsNullOrEmpty(strAccountName) || (string.IsNullOrEmpty(strAccessKey)) || (string.IsNullOrEmpty(strSecretKey)))
             {
-                MessageBox.Show("All fields are mandatory!", "Add Account", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("All fields except prefix are mandatory!", 
+                    "Add Account", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 frmMain.isValid = false;
             }
             if (frmMain.isValid) this.Close();
@@ -40,13 +43,14 @@ namespace S3_Scout
             txtAccountName.Text = strAccountName;
             txtAccessKey.Text = strAccessKey;
             txtSecretKey.Text = strSecretKey;
+            txtPrefix.Text = strPrefix;
         }
 
         private void txtSecretKey_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                btnOK_Click(this, new EventArgs());
+                txtPrefix.Focus();
             }
         }
 
@@ -66,5 +70,12 @@ namespace S3_Scout
             }
         }
 
+        private void txtPrefix_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                btnOK_Click(this, new EventArgs());
+            }
+        }
     }
 }

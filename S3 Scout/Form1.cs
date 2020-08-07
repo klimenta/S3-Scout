@@ -22,6 +22,7 @@ namespace S3_Scout
             public string colAccountName { get; set; }
             public string colAccessKey { get; set; }
             public string colSecretKey { get; set; }
+            public string colPrefix { get; set; }
         }
 
         public void Save2File()
@@ -58,7 +59,8 @@ namespace S3_Scout
                 {
                     dgvAccounts.Rows.Add(Unprotect(actAccount.colAccountName, cstrSecret),
                         Unprotect(actAccount.colAccessKey, cstrSecret),
-                        Unprotect(actAccount.colSecretKey, cstrSecret));
+                        Unprotect(actAccount.colSecretKey, cstrSecret),
+                        Unprotect(actAccount.colPrefix, cstrSecret));
                 }
             }
         }
@@ -133,6 +135,14 @@ namespace S3_Scout
             viewForm.Text = "Account: " + dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[0].Value.ToString();
             viewForm.strAccessKey = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[1].Value.ToString();
             viewForm.strSecretKey = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[2].Value.ToString();
+            if (dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[3].Value == null)
+            {
+                viewForm.strPrefix = "";
+            }
+            else
+            {
+                viewForm.strPrefix = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[3].Value.ToString();
+            }
             viewForm.Show();            
         }
 
@@ -145,16 +155,7 @@ namespace S3_Scout
                 {
                     ViewS3();
                 }
-            }
-
-            /*
-            viewForm = new frmView();
-            viewForm.Text = "Account: " + dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[0].Value.ToString();
-            viewForm.strAccessKey = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[1].Value.ToString();
-            viewForm.strSecretKey = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[2].Value.ToString();            
-            viewForm.ShowDialog();
-            viewForm.Dispose();
-            */
+            }  
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
@@ -164,7 +165,8 @@ namespace S3_Scout
                 DataGridViewRow dgitem = dgvAccounts.SelectedRows[0];
                 if (dgvAccounts.Rows.Count - dgitem.Index != 1)
                 {
-                    DialogResult dialogResult = MessageBox.Show("Are you sure?", "Delete Account(s)", MessageBoxButtons.YesNo);
+                    DialogResult dialogResult = MessageBox.Show("Are you sure?", 
+                        "Delete Account(s)", MessageBoxButtons.YesNo);
                     if (dialogResult == DialogResult.Yes)
                     {
                         foreach (DataGridViewRow item in dgvAccounts.SelectedRows)
@@ -190,6 +192,7 @@ namespace S3_Scout
                 dgvAccounts.Rows[intIndex].Cells[0].Value = accountForm.strAccountName;
                 dgvAccounts.Rows[intIndex].Cells[1].Value = accountForm.strAccessKey;
                 dgvAccounts.Rows[intIndex].Cells[2].Value = accountForm.strSecretKey;
+                dgvAccounts.Rows[intIndex].Cells[3].Value = accountForm.strPrefix;
             }
             accountForm.Dispose();
             Save2File();
@@ -212,17 +215,24 @@ namespace S3_Scout
                     accountForm.strAccountName = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[0].Value.ToString();
                     accountForm.strAccessKey = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[1].Value.ToString();
                     accountForm.strSecretKey = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[2].Value.ToString();
-
+                    if (dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[3].Value == null)
+                    {
+                        accountForm.strPrefix = "";
+                    }
+                    else
+                    {
+                        accountForm.strPrefix = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[3].Value.ToString();
+                    }
                     accountForm.ShowDialog();
                     accountForm.Dispose();
                 }
                 if (isValid)
                 {
-                    int intIndex = dgvAccounts.Rows.Count - 1;
-                    //dgvAccounts.Rows.Add();
+                    int intIndex = dgvAccounts.Rows.Count - 1;                    
                     dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[0].Value = accountForm.strAccountName;
                     dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[1].Value = accountForm.strAccessKey;
                     dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[2].Value = accountForm.strSecretKey;
+                    dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[3].Value = accountForm.strPrefix;
                     Save2File();
                 }
             }
@@ -244,7 +254,7 @@ namespace S3_Scout
 
         private void dgvAccounts_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            MessageBox.Show("dbl");
+            //MessageBox.Show("dbl");
             ViewS3();
         }
     }
