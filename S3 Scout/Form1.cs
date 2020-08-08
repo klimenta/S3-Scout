@@ -246,15 +246,8 @@ namespace S3_Scout
             }
         }
 
-        private void dgvAccounts_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            //MessageBox.Show("asdF");
-            //ViewS3();
-        }
-
         private void dgvAccounts_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            //MessageBox.Show("dbl");
+        {            
             ViewS3();
         }
     }

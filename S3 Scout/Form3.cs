@@ -18,22 +18,24 @@ namespace S3_Scout
     public partial class frmView : Form
     {
         public static bool isValid;
-        frmAddBucket bucketForm;
+        frmAddFolder bucketForm;
         bool bAccountError;
         int intPage = 0;
         int intBucketCount = 0;
         const int constMaxKeys = 1000;
         int intTotalObjects = 0;
         int intTotalPages = 0;
+        int intUploadCount;
         public string strAccessKey = "";
         public string strSecretKey = "";
         public string strPrefix = "";
         string strTopLevelBucket = "";
         string strCurrentPrefix = "";
-        string strDownloadName;
+        string strDownloadFileName;
+        string[] strUploadFileName;
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();
-
+        
         [DllImport("shlwapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
         internal static extern bool PathCompactPathEx(System.Text.StringBuilder pszOut, string pszSrc, Int32 cchMax, Int32 dwFlags);
 
@@ -48,6 +50,12 @@ namespace S3_Scout
             {
                 return Path;
             }
+        }
+
+        public class cCancelTask
+        {
+            public CancellationTokenSource tokenSource = new CancellationTokenSource();
+            public int varijabla { get; set; }
         }
 
         private class cMyS3Object
@@ -99,7 +107,7 @@ namespace S3_Scout
                 }
                 //GetBucketDate(strPrefix);
                 dgvBuckets.Rows.Add(strPrefix, strRegion, "NO DATA");
-                Refresh(strPrefix, "");
+                RefreshKeysGrid(strPrefix, "");
                 return;
             }
             AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
@@ -132,9 +140,7 @@ namespace S3_Scout
                 MessageBox.Show(ex.Message.ToString(), "Account error",
                   MessageBoxButtons.OK, MessageBoxIcon.Error);
                 bAccountError = true;
-            }
-  
-
+            }  
         }
 
         private void frmView_Load(object sender, EventArgs e)
@@ -270,7 +276,7 @@ namespace S3_Scout
             }
         }
 
-        private void Refresh(string strFolderName, string strPrefix)
+        private void RefreshKeysGrid(string strFolderName, string strPrefix)
         {
             Cursor.Current = Cursors.WaitCursor;
             if (!string.IsNullOrEmpty(strFolderName))
@@ -297,16 +303,15 @@ namespace S3_Scout
             strTopLevelBucket = strBucketName;
             strCurrentPrefix = "";
 
-            Refresh(strBucketName, strCurrentPrefix);
+            RefreshKeysGrid(strBucketName, strCurrentPrefix);
 
             LogEntry(FontStyle.Regular, strTopLevelBucket + " list completed.");
         }
 
         private async void btnDownload_Click(object sender, EventArgs e)
         {
+            //CancellationTokenSource tokenSource = new CancellationTokenSource();                        
             progressBar1.Value = 0;
-
-            int intDownloadedFiles = 1;
             int selectedCellCount = dgvFiles.SelectedRows.Count;
             if (selectedCellCount > 1)
             {
@@ -317,7 +322,7 @@ namespace S3_Scout
             if (selectedCellCount == 1)
             {
                 string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
-                strDownloadName = dgvFiles.Rows[dgvFiles.SelectedRows[0].Index].Cells[1].Value.ToString();
+                strDownloadFileName = dgvFiles.Rows[dgvFiles.SelectedRows[0].Index].Cells[1].Value.ToString();
                 Bitmap bmpType = (Bitmap)dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[0].Value;
                 if ((string)bmpType.Tag == "folder")
                 {
@@ -330,21 +335,20 @@ namespace S3_Scout
                 {
                     string strFolderName = string.Empty;
                     strFolderName = folderBrowserDialog1.SelectedPath;
-
-                    var token = tokenSource.Token;
+                    
+                    CancellationToken token = tokenSource.Token;
                     AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
                     using (var transferUtility = new TransferUtility(awsS3Client))
                     {
                         var downloadRequest = new TransferUtilityDownloadRequest
                         {
                             BucketName = strBucketName,
-                            Key = strCurrentPrefix + strDownloadName,
-                            FilePath = @strFolderName + "\\" + strDownloadName
+                            Key = strCurrentPrefix + strDownloadFileName,
+                            FilePath = @strFolderName + "\\" + strDownloadFileName
                         };
                         btnCancel.Enabled = true;
-                        downloadRequest.WriteObjectProgressEvent += OnWriteObjectProgressEvent;
-                        LogEntry(FontStyle.Regular, strDownloadName + " download started...");
-                        intDownloadedFiles++;
+                        downloadRequest.WriteObjectProgressEvent += OnDownloadObjectProgressEvent;
+                        LogEntry(FontStyle.Regular, strDownloadFileName + " download started...");                        
                         try
                         {
                             await transferUtility.DownloadAsync(downloadRequest, token);
@@ -354,39 +358,45 @@ namespace S3_Scout
                             MessageBox.Show(ex.Message.ToString());
                             btnCancel.Enabled = false;
                         }
+                        finally
+                        {
+                            tokenSource.Dispose();
+                            tokenSource = new CancellationTokenSource();
+                            progressBar1.Value = 0;
+                            lblTransferredBytes.Text = "Transferred: 0/0";
+                        }
                     }
+                    btnCancel.Enabled = false;
                 }
             }
         }
 
-        void OnWriteObjectProgressEvent(object sender, WriteObjectProgressArgs e)
+        void OnDownloadObjectProgressEvent(object sender, WriteObjectProgressArgs e)
         {
             // Process progress update events.
-            progressBar1.BeginInvoke(new Action(() => progressBar1.Value = e.PercentDone));
-            //e.transferredbytes and e.totalbytes  
+            progressBar1.BeginInvoke(new Action(() => progressBar1.Value = e.PercentDone));            
             if (e.PercentDone == 100)
             {
                 Invoke(new Action(() =>
                 {
-                    LogEntry(FontStyle.Regular, strDownloadName + " download finished...");
+                    LogEntry(FontStyle.Regular, strDownloadFileName + " download finished.");
+                    btnCancel.Enabled = false;
+                    progressBar1.Value = 0;
+                    lblTransferredBytes.Text = "Transferred: 0/0";
                 }));
-                btnCancel.Enabled = false;
+                
             }
             lblTransferredBytes.Invoke(new Action(() => {
                 lblTransferredBytes.Text = "Transferred: " + String.Format("{0:n0}", e.TransferredBytes) 
                     + " / " + String.Format("{0:n0}", e.TotalBytes);
             }));
-            Application.DoEvents();
+            Application.DoEvents();            
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
-        {
-            //token.ThrowIfCancellationRequested();
-            tokenSource.Cancel();
-            LogEntry(FontStyle.Bold, "Download cancelled.");
-            progressBar1.Value = 0;
-            lblTransferredBytes.Text = "Transferred: 0/0";
-            
+        {            
+            tokenSource.Cancel();            
+            LogEntry(FontStyle.Bold,  "Operation cancelled.");                      
         }
 
         private void btnNext_Click(object sender, EventArgs e)
@@ -501,31 +511,32 @@ namespace S3_Scout
         }
 
         private async void btnUpload_Click(object sender, EventArgs e)
-        {
+        {            
             progressBar1.Value = 0;
             int intUploadedFiles = 1;
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                int intFileCount = 0;
+                intUploadCount = 0;
                 foreach (string strFilePathName in openFileDialog1.FileNames)
                 {
                     int intTotalFiles = openFileDialog1.FileNames.Length;
 
-                    string[] strFileNames = openFileDialog1.SafeFileNames;
-                    var token = tokenSource.Token;
+                    strUploadFileName = openFileDialog1.SafeFileNames;
+                    CancellationToken token = tokenSource.Token;
                     AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
                     using (var transferUtility = new TransferUtility(awsS3Client))
                     {
                         var uploadRequest = new TransferUtilityUploadRequest
                         {
                             BucketName = strTopLevelBucket,
-                            Key = strCurrentPrefix + strFileNames[intFileCount],
+                            Key = strCurrentPrefix + strUploadFileName[intUploadCount],
                             FilePath = strFilePathName
                         };
 
+                        btnCancel.Enabled = true;
                         uploadRequest.UploadProgressEvent += OnUploadObjectProgressEvent;
-                        LogEntry(FontStyle.Regular, strFileNames[intFileCount] + " uploaded.");
+                        LogEntry(FontStyle.Regular, strUploadFileName[intUploadCount] + " upload started...");
                         intUploadedFiles++;
                         try
                         {
@@ -534,17 +545,41 @@ namespace S3_Scout
                         catch (Exception ex)
                         {
                             MessageBox.Show(ex.Message.ToString());
+                            btnCancel.Enabled = false;
+                        }
+                        finally
+                        {
+                            tokenSource.Dispose();
+                            tokenSource = new CancellationTokenSource();
+                            progressBar1.Value = 0;
+                            lblTransferredBytes.Text = "Transferred: 0/0";
                         }
                     }
-                    intFileCount++;
+                    intUploadCount++;                    
                 }
             }
+            RefreshKeys();
         }
 
         void OnUploadObjectProgressEvent(object sender, UploadProgressArgs e)
         {
             // Process progress update events.
             progressBar1.BeginInvoke(new Action(() => progressBar1.Value = e.PercentDone));
+            if (e.PercentDone == 100)
+            {
+                Invoke(new Action(() =>
+                {
+                    LogEntry(FontStyle.Regular, strUploadFileName[intUploadCount] + " upload finished.");
+                    btnCancel.Enabled = false;
+                    progressBar1.Value = 0;
+                    lblTransferredBytes.Text = "Transferred: 0/0";                    
+                }));
+
+            }
+            lblTransferredBytes.Invoke(new Action(() => {
+                lblTransferredBytes.Text = "Transferred: " + String.Format("{0:n0}", e.TransferredBytes)
+                    + " / " + String.Format("{0:n0}", e.TotalBytes);
+            }));
             Application.DoEvents();
         }
 
@@ -559,7 +594,7 @@ namespace S3_Scout
 
         private void btnCreateBucket_Click(object sender, EventArgs e)
         {
-            bucketForm = new frmAddBucket();
+            bucketForm = new frmAddFolder();
             bucketForm.cbRegion.Enabled = true;
             bucketForm.ShowDialog();
             if (isValid)
@@ -608,7 +643,7 @@ namespace S3_Scout
             Bitmap bmpType = (Bitmap)dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[0].Value;
             if ((string)bmpType.Tag == "folder")
             {
-                Refresh(strTopLevelBucket, strCurrentPrefix + strBucketName);
+                RefreshKeysGrid(strTopLevelBucket, strCurrentPrefix + strBucketName);
 
                 strCurrentPrefix = strCurrentPrefix + strBucketName + "/";
 
@@ -626,7 +661,7 @@ namespace S3_Scout
             if (intDelimiterPosition > 0)
                 strCurrentPrefix = strCurrentPrefix.Substring(0, intDelimiterPosition);
             else strCurrentPrefix = "";
-            Refresh(strTopLevelBucket, strCurrentPrefix);
+            RefreshKeysGrid(strTopLevelBucket, strCurrentPrefix);
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
@@ -655,7 +690,7 @@ namespace S3_Scout
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            bucketForm = new frmAddBucket();
+            bucketForm = new frmAddFolder();
             bucketForm.cbRegion.Enabled = false;
             bucketForm.ShowDialog();
             if (isValid)
@@ -696,7 +731,7 @@ namespace S3_Scout
             */
         }
 
-        private void btnRefreshFolders_Click(object sender, EventArgs e)
+        private void RefreshKeys()
         {
             string strRefreshPrefix;
             if (strCurrentPrefix != "")
@@ -707,8 +742,14 @@ namespace S3_Scout
             {
                 strRefreshPrefix = "";
             }
-            Refresh(strTopLevelBucket, strRefreshPrefix);
+            RefreshKeysGrid(strTopLevelBucket, strRefreshPrefix);
             LogEntry(FontStyle.Regular, "Refresh completed.");
+
+        }
+
+        private void btnRefreshFolders_Click(object sender, EventArgs e)
+        {
+            RefreshKeys();
         }
 
         private async void btnDeleteFile_Click(object sender, EventArgs e)
@@ -746,6 +787,7 @@ namespace S3_Scout
                         };
                         await awsS3Client.DeleteObjectAsync(deleteObjectRequest);
                         LogEntry(FontStyle.Regular, strDeleteName + " deleted.");
+                        RefreshKeys();
                     }
                     catch (AmazonS3Exception ex)
                     {

@@ -1,6 +1,6 @@
 ﻿namespace S3_Scout
 {
-    partial class frmAddBucket
+    partial class frmAddFolder
     {
         /// <summary>
         /// Required designer variable.
@@ -28,29 +28,30 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
-            this.txtBucketName = new System.Windows.Forms.TextBox();
+            this.lblEnterFolderName = new System.Windows.Forms.Label();
+            this.txtFolderName = new System.Windows.Forms.TextBox();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.lblRegion = new System.Windows.Forms.Label();
             this.cbRegion = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
-            // label1
+            // lblEnterFolderName
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(100, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Enter bucket name:";
+            this.lblEnterFolderName.AutoSize = true;
+            this.lblEnterFolderName.Location = new System.Drawing.Point(12, 9);
+            this.lblEnterFolderName.Name = "lblEnterFolderName";
+            this.lblEnterFolderName.Size = new System.Drawing.Size(93, 13);
+            this.lblEnterFolderName.TabIndex = 0;
+            this.lblEnterFolderName.Text = "Enter folder name:";
             // 
-            // txtBucketName
+            // txtFolderName
             // 
-            this.txtBucketName.Location = new System.Drawing.Point(15, 25);
-            this.txtBucketName.Name = "txtBucketName";
-            this.txtBucketName.Size = new System.Drawing.Size(201, 20);
-            this.txtBucketName.TabIndex = 1;
+            this.txtFolderName.Location = new System.Drawing.Point(15, 25);
+            this.txtFolderName.Name = "txtFolderName";
+            this.txtFolderName.Size = new System.Drawing.Size(201, 20);
+            this.txtFolderName.TabIndex = 1;
+            this.txtFolderName.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtBucketName_KeyDown);
             // 
             // btnOK
             // 
@@ -123,13 +124,13 @@
             this.Controls.Add(this.lblRegion);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
-            this.Controls.Add(this.txtBucketName);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.txtFolderName);
+            this.Controls.Add(this.lblEnterFolderName);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "frmAddBucket";
-            this.Text = "Create Bucket";
+            this.Text = "Create Folder";
             this.Load += new System.EventHandler(this.frmAddBucket_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -138,8 +139,8 @@
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txtBucketName;
+        private System.Windows.Forms.Label lblEnterFolderName;
+        private System.Windows.Forms.TextBox txtFolderName;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Label lblRegion;

@@ -147,8 +147,7 @@
             this.dgvAccounts.ReadOnly = true;
             this.dgvAccounts.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvAccounts.Size = new System.Drawing.Size(693, 315);
-            this.dgvAccounts.TabIndex = 1;
-            this.dgvAccounts.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvAccounts_CellContentClick);
+            this.dgvAccounts.TabIndex = 1;            
             this.dgvAccounts.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvAccounts_CellContentDoubleClick);
             this.dgvAccounts.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvAccounts_CellFormatting);
             // 

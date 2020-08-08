@@ -31,6 +31,9 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmView));
             this.dgvBuckets = new System.Windows.Forms.DataGridView();
+            this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colRegion = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colBucketDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvFiles = new System.Windows.Forms.DataGridView();
             this.colType = new System.Windows.Forms.DataGridViewImageColumn();
             this.colObjectName = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -58,9 +61,6 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.lblBevel = new System.Windows.Forms.Label();
-            this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colRegion = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colBucketDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBuckets)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFiles)).BeginInit();
             this.SuspendLayout();
@@ -83,6 +83,26 @@
             this.dgvBuckets.Size = new System.Drawing.Size(466, 273);
             this.dgvBuckets.TabIndex = 2;
             this.dgvBuckets.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvBuckets_CellDoubleClick);
+            // 
+            // colName
+            // 
+            this.colName.HeaderText = "Bucket Name";
+            this.colName.Name = "colName";
+            this.colName.ReadOnly = true;
+            this.colName.Width = 170;
+            // 
+            // colRegion
+            // 
+            this.colRegion.HeaderText = "Region";
+            this.colRegion.Name = "colRegion";
+            this.colRegion.ReadOnly = true;
+            // 
+            // colBucketDate
+            // 
+            this.colBucketDate.HeaderText = "Creation Date";
+            this.colBucketDate.Name = "colBucketDate";
+            this.colBucketDate.ReadOnly = true;
+            this.colBucketDate.Width = 150;
             // 
             // dgvFiles
             // 
@@ -237,7 +257,7 @@
             this.btnDeleteFile.Size = new System.Drawing.Size(40, 40);
             this.btnDeleteFile.TabIndex = 17;
             this.btnDeleteFile.Text = "-";
-            this.toolTip1.SetToolTip(this.btnDeleteFile, "Delete folder");
+            this.toolTip1.SetToolTip(this.btnDeleteFile, "Delete object");
             this.btnDeleteFile.UseVisualStyleBackColor = true;
             this.btnDeleteFile.Click += new System.EventHandler(this.btnDeleteFile_Click);
             // 
@@ -336,26 +356,6 @@
             this.lblBevel.Size = new System.Drawing.Size(993, 10);
             this.lblBevel.TabIndex = 26;
             this.lblBevel.Text = "label1";
-            // 
-            // colName
-            // 
-            this.colName.HeaderText = "Bucket Name";
-            this.colName.Name = "colName";
-            this.colName.ReadOnly = true;
-            this.colName.Width = 170;
-            // 
-            // colRegion
-            // 
-            this.colRegion.HeaderText = "Region";
-            this.colRegion.Name = "colRegion";
-            this.colRegion.ReadOnly = true;
-            // 
-            // colBucketDate
-            // 
-            this.colBucketDate.HeaderText = "Bucket Date";
-            this.colBucketDate.Name = "colBucketDate";
-            this.colBucketDate.ReadOnly = true;
-            this.colBucketDate.Width = 150;
             // 
             // frmView
             // 

@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace S3_Scout
 {
-    public partial class frmAddBucket : Form
+    public partial class frmAddFolder : Form
     {
 
         public string strBucketName = "";
@@ -17,7 +17,7 @@ namespace S3_Scout
                                                   "eu-north-1", "eu-south-1", "eu-west-1", "eu-west-2",
                                                   "eu-west-3", "me-south-1", "sa-east-1"};
 
-        public frmAddBucket()
+        public frmAddFolder()
         {
             InitializeComponent();
         }
@@ -31,14 +31,14 @@ namespace S3_Scout
         private void btnOK_Click(object sender, EventArgs e)
         {
             frmView.isValid = true;
-            strBucketName = txtBucketName.Text.Trim();
+            strBucketName = txtFolderName.Text.Trim();
 
             int intRegion = cbRegion.SelectedIndex;
             strRegion = lstRegions.ElementAt(intRegion);
             //MessageBox.Show(strRegion);
             if (string.IsNullOrEmpty(strBucketName))
             {
-                MessageBox.Show("Bucket name is mandatory!", "Add Bucket", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Folder name is mandatory!", "Add Folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 frmView.isValid = false;
             }
             if (frmView.isValid) this.Close();
@@ -49,5 +49,18 @@ namespace S3_Scout
             cbRegion.SelectedIndex = 0;
         }
 
+        private void txtBucketName_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                btnOK_Click(this, new EventArgs());
+            }
+            if (e.KeyCode == Keys.Escape)
+            {
+                this.Close();
+            }
+        }
+
+        
     }
 }
