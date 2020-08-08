@@ -17,7 +17,7 @@ namespace S3_Scout
 {
     public partial class frmView : Form
     {
-        public static bool isValid;
+        public static bool isBucketInputValid;
         frmAddFolder bucketForm;
         bool bAccountError;
         int intPage = 0;
@@ -36,9 +36,12 @@ namespace S3_Scout
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();
         
+        //Used for folder shortening e.g. bucket1/bucket2.../...object
         [DllImport("shlwapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        internal static extern bool PathCompactPathEx(System.Text.StringBuilder pszOut, string pszSrc, Int32 cchMax, Int32 dwFlags);
+        internal static extern bool PathCompactPathEx(System.Text.StringBuilder pszOut, 
+            string pszSrc, Int32 cchMax, Int32 dwFlags);
 
+        //Shortents a long bucket URL to 260 chars
         static string PathShortener(string Path, int DesiredLength)
         {
             StringBuilder sb = new StringBuilder(260);
@@ -52,12 +55,7 @@ namespace S3_Scout
             }
         }
 
-        public class cCancelTask
-        {
-            public CancellationTokenSource tokenSource = new CancellationTokenSource();
-            public int varijabla { get; set; }
-        }
-
+        //Class for an S3 object
         private class cMyS3Object
         {
             public string Key { get; set; }
@@ -67,6 +65,7 @@ namespace S3_Scout
             public string StorageClass { get; set; }
         }
 
+        //Logs things at the bottom of the form
         private void LogEntry(FontStyle fontStyle, string strText)
         {
             DateTime saveNow = DateTime.Now;
@@ -82,6 +81,7 @@ namespace S3_Scout
             InitializeComponent();
         }
 
+        //Gets the region for the bucket
         private string GetBucketLocation(string strPrefix)
         {
             AmazonS3Client client = new AmazonS3Client(strAccessKey, strSecretKey);
@@ -89,10 +89,21 @@ namespace S3_Scout
             {
                 BucketName = strPrefix
             };
-            GetBucketLocationResponse response = client.GetBucketLocation(request);
+            GetBucketLocationResponse response = null;
+            try
+            {
+                response = client.GetBucketLocation(request);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message.ToString(), "Account error",
+                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return "null";
+            }
             return response.Location;
         }
 
+        //List buckets on the left side on the form
         private void ListBuckets()
         {
             dgvBuckets.Rows.Clear();
@@ -101,11 +112,15 @@ namespace S3_Scout
             if (strPrefix != "")
             {                
                 string strRegion = GetBucketLocation(strPrefix);
+                if (strRegion == "null")
+                {
+                    bAccountError = true;
+                    return;
+                }
                 if (strRegion == "")
                 {
                     strRegion = "us-east-1";
-                }
-                //GetBucketDate(strPrefix);
+                }                
                 dgvBuckets.Rows.Add(strPrefix, strRegion, "NO DATA");
                 RefreshKeysGrid(strPrefix, "");
                 return;
@@ -128,7 +143,6 @@ namespace S3_Scout
                     {
                         strRegion = "us-east-1";
                     }
-
                     dgvBuckets.Rows.Add(bucket.BucketName, strRegion, bucket.CreationDate);
                     intBucketCount++;
                 }
@@ -143,6 +157,7 @@ namespace S3_Scout
             }  
         }
 
+        //List buckets when the form is shown
         private void frmView_Load(object sender, EventArgs e)
         {
             ListBuckets();
@@ -155,6 +170,7 @@ namespace S3_Scout
             dgvFiles.Columns[3].DefaultCellStyle.Format = "N0";
         }
 
+        //Gets all objects on the right side
         private List<cMyS3Object> GetAllS3Objects(string strFolder, string strPrefix)
         {
             List<cMyS3Object> lstS3Objects = new List<cMyS3Object>();
@@ -230,17 +246,15 @@ namespace S3_Scout
                     MyS3ObjectFile.Folder = false;
                     lstS3Objects.Add(MyS3ObjectFile);
                 }
-
-
                 lstRequest.ContinuationToken = lstResponse.NextContinuationToken;
             } while (lstResponse.IsTruncated);
             return lstS3Objects;
         }
 
+        //Shows a single page if there are more than MaxKeys = 1000 objects
         private void ShowPage(int intPageNo, List<cMyS3Object> lstS3Objects)
         {
             int intTotalRows = lstS3Objects.Count - (intPageNo * constMaxKeys);
-
             if (intTotalRows > constMaxKeys)
             {
                 intTotalRows = constMaxKeys;
@@ -266,8 +280,6 @@ namespace S3_Scout
                     bmpImage = Properties.Resources.file;
                     bmpImage.Tag = "file";
                 }
-
-
                 dgvFiles.Rows.Add(bmpImage, strObject, lstS3Objects[i + intPageNo * constMaxKeys].StorageClass, lstS3Objects[i + intPageNo * constMaxKeys].Size, lstS3Objects[i + intPageNo * constMaxKeys].LastModified);
             }
             if (intPageNo == 0)
@@ -276,6 +288,7 @@ namespace S3_Scout
             }
         }
 
+        //Refresh showing objects on the right side
         private void RefreshKeysGrid(string strFolderName, string strPrefix)
         {
             Cursor.Current = Cursors.WaitCursor;
@@ -294,23 +307,22 @@ namespace S3_Scout
             }
             Cursor.Current = Cursors.Default;
             lblCurrentFolder.Text = "Path: " + PathShortener(strFolderName + "/" + strPrefix, 70);
-
         }
 
+        //Double-click bucket on the left
         private void dgvBuckets_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
             strTopLevelBucket = strBucketName;
             strCurrentPrefix = "";
-
             RefreshKeysGrid(strBucketName, strCurrentPrefix);
-
             LogEntry(FontStyle.Regular, strTopLevelBucket + " list completed.");
         }
 
+        //Download object, only single object is allowed
+        //You can probalby make it work for multiple objects, see upload async method
         private async void btnDownload_Click(object sender, EventArgs e)
-        {
-            //CancellationTokenSource tokenSource = new CancellationTokenSource();                        
+        {            
             progressBar1.Value = 0;
             int selectedCellCount = dgvFiles.SelectedRows.Count;
             if (selectedCellCount > 1)
@@ -371,6 +383,7 @@ namespace S3_Scout
             }
         }
 
+        //Async download, show progress bar and bytes transferred
         void OnDownloadObjectProgressEvent(object sender, WriteObjectProgressArgs e)
         {
             // Process progress update events.
@@ -383,8 +396,7 @@ namespace S3_Scout
                     btnCancel.Enabled = false;
                     progressBar1.Value = 0;
                     lblTransferredBytes.Text = "Transferred: 0/0";
-                }));
-                
+                }));                
             }
             lblTransferredBytes.Invoke(new Action(() => {
                 lblTransferredBytes.Text = "Transferred: " + String.Format("{0:n0}", e.TransferredBytes) 
@@ -393,24 +405,29 @@ namespace S3_Scout
             Application.DoEvents();            
         }
 
+        //Cancel upload or download
         private void btnCancel_Click(object sender, EventArgs e)
         {            
             tokenSource.Cancel();            
             LogEntry(FontStyle.Bold,  "Operation cancelled.");                      
         }
 
+        //If more than MaxKeys = 1000 objects on the right grid, show the next from 1001+
         private void btnNext_Click(object sender, EventArgs e)
         {
             ShowPage(++intPage, lstS3Objects);
             btnPrev.Enabled = true;
         }
 
+        //Show the prev page if more than MaxKeys = 1000 objects on the right grid
         private void btnPrev_Click(object sender, EventArgs e)
         {
             ShowPage(--intPage, lstS3Objects);
             btnNext.Enabled = true;
         }
 
+        //Delete a bucket on the left. It deletes non-empty buckets too.
+        //Takes some time if a lot of objects
         private void btnDeleteBucket_Click(object sender, EventArgs e)
         {
             string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
@@ -465,7 +482,6 @@ namespace S3_Scout
                         // Add keys for the objects to the delete request
                         deleteObjectsRequest.AddKey(obj.Key, null);
                     }
-
                     // Submit the request
                     try
                     {
@@ -503,13 +519,11 @@ namespace S3_Scout
                     intBucketCount--;
                     lblBuckets.Text = "Buckets: " + intBucketCount.ToString();
                     dgvFiles.Rows.Clear();
-
                 }
-                //https://stackoverflow.com/questions/11797476/delete-a-bucket-in-s3
-                //https://csharp.hotexamples.com/examples/Amazon.S3/AmazonS3Client/DeleteBucket/php-amazons3client-deletebucket-method-examples.html
             }
         }
 
+        //Upload objects in the right grid. Multiple uploads allowed
         private async void btnUpload_Click(object sender, EventArgs e)
         {            
             progressBar1.Value = 0;
@@ -561,6 +575,7 @@ namespace S3_Scout
             RefreshKeys();
         }
 
+        //Show progress bar and bytes transferred for upload
         void OnUploadObjectProgressEvent(object sender, UploadProgressArgs e)
         {
             // Process progress update events.
@@ -583,21 +598,22 @@ namespace S3_Scout
             Application.DoEvents();
         }
 
+        //Do some regex stuff to see if the bucket name is valid
         private bool IsValidBucketName(string strBucketName)
         {
             var regexItem = new Regex(@"(?=^.{1,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])$)");
 
             if (regexItem.IsMatch(strBucketName)) return true;
-            else return false;
-
+                else return false;
         }
-
+       
+        //Create a bucket on the left
         private void btnCreateBucket_Click(object sender, EventArgs e)
         {
             bucketForm = new frmAddFolder();
             bucketForm.cbRegion.Enabled = true;
             bucketForm.ShowDialog();
-            if (isValid)
+            if (isBucketInputValid)
             {
                 if (!IsValidBucketName(bucketForm.strBucketName))
                 {
@@ -637,6 +653,7 @@ namespace S3_Scout
             bucketForm.Dispose();
         }
 
+        //Double-click on the right grid, it has to be a folder - not a file
         private void dgvFiles_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             string strBucketName = dgvFiles.Rows[dgvFiles.CurrentRow.Index].Cells[1].Value.ToString();
@@ -651,6 +668,7 @@ namespace S3_Scout
             }
         }
 
+        //Go up one folder in the right grid
         private void btnUp_Click(object sender, EventArgs e)
         {
             if (strCurrentPrefix == "") return;
@@ -664,24 +682,21 @@ namespace S3_Scout
             RefreshKeysGrid(strTopLevelBucket, strCurrentPrefix);
         }
 
+        //Refresh buckets on left
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             ListBuckets();
         }
 
+        //Check if S3 object exists
         private bool DoesS3ObjectExist(AmazonS3Client client, string strTopLevelBucket, string strObject)
         {
             S3FileInfo s3FileInfo = new Amazon.S3.IO.S3FileInfo(client, strTopLevelBucket, strObject);
-            if (s3FileInfo.Exists)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            if (s3FileInfo.Exists) return true;
+                else return false;            
         }
 
+        //Create a folder on the right
         private void btnCreateFolder_Click(object sender, EventArgs e)
         {
             if (strTopLevelBucket == "")
@@ -693,7 +708,7 @@ namespace S3_Scout
             bucketForm = new frmAddFolder();
             bucketForm.cbRegion.Enabled = false;
             bucketForm.ShowDialog();
-            if (isValid)
+            if (isBucketInputValid)
             {
                 if (!IsValidBucketName(bucketForm.strBucketName))
                 {
@@ -716,21 +731,16 @@ namespace S3_Scout
                 };
                 PutObjectResponse response = client.PutObject(request);
 
-                LogEntry(FontStyle.Regular, bucketForm.strBucketName + " created.");
-                //dgvFiles.Rows.Add(bucketForm.strBucketName, bucketForm.strRegion, DateTime.Now.ToString());
+                LogEntry(FontStyle.Regular, bucketForm.strBucketName + " created.");                
                 Bitmap bmpImage;
                 bmpImage = Properties.Resources.folder;
                 bmpImage.Tag = "folder";
                 dgvFiles.Rows.Add(bmpImage, bucketForm.strBucketName, "STANDARD", "0", DateTime.Now.ToString());
-
-
             }
-            bucketForm.Dispose();
-            /*
-            https://www.c-sharpcorner.com/blogs/working-with-files-and-folders-in-s3-using-aws-sdk-for-net
-            */
+            bucketForm.Dispose();            
         }
 
+        //Refresh all object on right
         private void RefreshKeys()
         {
             string strRefreshPrefix;
@@ -744,20 +754,17 @@ namespace S3_Scout
             }
             RefreshKeysGrid(strTopLevelBucket, strRefreshPrefix);
             LogEntry(FontStyle.Regular, "Refresh completed.");
-
         }
 
+        //Click refresh button
         private void btnRefreshFolders_Click(object sender, EventArgs e)
         {
             RefreshKeys();
         }
 
+        //Delete file/folder = object = key on the right
         private async void btnDeleteFile_Click(object sender, EventArgs e)
-        {
-
-            //progressBar1.Value = 0;
-
-            //int intDeletedFiles = 1;
+        {         
             int intselectedCellCount = dgvFiles.SelectedRows.Count;
             if (intselectedCellCount == 0)
             {

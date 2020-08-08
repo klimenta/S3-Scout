@@ -15,15 +15,17 @@ namespace S3_Scout
             InitializeComponent();
         }
 
+        //Cancel any changes
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            frmMain.isValid = false;
+            frmMain.isAccountInputValid = false;
             Close();
         }
-
+        
+        //Validates the input in the text boxes
         private void btnOK_Click(object sender, EventArgs e)
         {
-            frmMain.isValid = true;
+            frmMain.isAccountInputValid = true;
 
             strAccountName = txtAccountName.Text.Trim();
             strAccessKey = txtAccessKey.Text.Trim();
@@ -33,11 +35,11 @@ namespace S3_Scout
             {
                 MessageBox.Show("All fields except prefix are mandatory!", 
                     "Add Account", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                frmMain.isValid = false;
+                frmMain.isAccountInputValid = false;
             }
-            if (frmMain.isValid) this.Close();
+            if (frmMain.isAccountInputValid) this.Close();
         }
-
+        
         private void frmAddAccount_Load(object sender, EventArgs e)
         {
             txtAccountName.Text = strAccountName;
@@ -46,6 +48,7 @@ namespace S3_Scout
             txtPrefix.Text = strPrefix;
         }
 
+        //Next edit box if enter is pressed
         private void txtSecretKey_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -54,6 +57,7 @@ namespace S3_Scout
             }
         }
 
+        //Next edit box if enter is pressed            
         private void txtAccountName_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -62,6 +66,7 @@ namespace S3_Scout
             }
         }
 
+        //Next edit box if enter is pressed
         private void txtAccessKey_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -70,6 +75,7 @@ namespace S3_Scout
             }
         }
 
+        //Simulate OK click if enter key is pressed for the last edit box
         private void txtPrefix_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)

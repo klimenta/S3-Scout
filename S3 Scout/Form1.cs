@@ -11,12 +11,17 @@ namespace S3_Scout
 {
     public partial class frmMain : Form
     {
-        public static bool isValid;
+        //Is input valid in the Account Form
+        public static bool isAccountInputValid;
+        //%APPDATA% folder
         private string strAppDataFolder;
+        //Forms
         frmAddAccount accountForm;
         frmView viewForm;
+        //Const for the encryption of the account info
         private const string cstrSecret = "!@Sup3rS3cr3t^&&^&hHFB@sdf23";
 
+        //Class for an S3 account
         public class cAccount
         {
             public string colAccountName { get; set; }
@@ -25,6 +30,7 @@ namespace S3_Scout
             public string colPrefix { get; set; }
         }
 
+        //Saves the JSON file under %APPDATA%
         public void Save2File()
         {
             string strJSON;
@@ -48,6 +54,7 @@ namespace S3_Scout
             System.IO.File.WriteAllText(@strAppDataFolder + "\\S3 Scout.json", strJSON);
         }
 
+        //Converts JSON input to a Table for GridView presentation
         public void JSON2DataTable(string x)
         {
             JavaScriptSerializer jsSerializer = new JavaScriptSerializer();
@@ -65,6 +72,7 @@ namespace S3_Scout
             }
         }
 
+        //Converts GridView to JSON
         public string DataTable2JSON(DataTable table)
         {
             JavaScriptSerializer jsSerializer = new JavaScriptSerializer();
@@ -84,6 +92,7 @@ namespace S3_Scout
             return jsSerializer.Serialize(parentRow);
         }
 
+        //Encryption
         public static string Protect(string text, string purpose)
         {
             if (string.IsNullOrEmpty(text))
@@ -94,6 +103,7 @@ namespace S3_Scout
             return HttpServerUtility.UrlTokenEncode(encodedValue);
         }
 
+        //Decryption
         public static string Unprotect(string text, string purpose)
         {
             if (string.IsNullOrEmpty(text))
@@ -113,7 +123,7 @@ namespace S3_Scout
                 string strJSON = System.IO.File.ReadAllText(@strAppDataFolder + "\\S3 Scout.json");
                 JSON2DataTable(strJSON);
             }
-            catch { }
+            catch { /*Do nothing if JSON file is missing  */ }
         }
 
         private void ViewS3()
@@ -131,6 +141,7 @@ namespace S3_Scout
             }
             
             Cursor.Current = Cursors.WaitCursor;
+            //Show the view form
             viewForm = new frmView();
             viewForm.Text = "Account: " + dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[0].Value.ToString();
             viewForm.strAccessKey = dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[1].Value.ToString();
@@ -146,6 +157,7 @@ namespace S3_Scout
             viewForm.Show();            
         }
 
+        //Opens up the view form
         private void btnView_Click(object sender, EventArgs e)
         {
             if (dgvAccounts.SelectedRows.Count == 1)
@@ -158,6 +170,7 @@ namespace S3_Scout
             }  
         }
 
+        //Delete the account
         private void btnDelete_Click(object sender, EventArgs e)
         {
             if (dgvAccounts.SelectedRows.Count == 1)
@@ -179,13 +192,14 @@ namespace S3_Scout
             }
         }
 
+        //New account
         private void btnNew_Click(object sender, EventArgs e)
         {
             accountForm = new frmAddAccount();
             accountForm.Text = "New Account";
             accountForm.ShowDialog();
 
-            if (isValid)
+            if (isAccountInputValid)
             {
                 int intIndex = dgvAccounts.Rows.Count - 1;
                 dgvAccounts.Rows.Add();
@@ -198,11 +212,13 @@ namespace S3_Scout
             Save2File();
         }
 
+        //Opens up my blog if the blue link is clicked
         private void lnkAbout_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start("https://blog.andreev.it");
         }
 
+        //Edits the account
         private void btnEdit_Click(object sender, EventArgs e)
         {
             if (dgvAccounts.SelectedRows.Count == 1)
@@ -226,7 +242,7 @@ namespace S3_Scout
                     accountForm.ShowDialog();
                     accountForm.Dispose();
                 }
-                if (isValid)
+                if (isAccountInputValid)
                 {
                     int intIndex = dgvAccounts.Rows.Count - 1;                    
                     dgvAccounts.Rows[dgvAccounts.CurrentRow.Index].Cells[0].Value = accountForm.strAccountName;
@@ -238,6 +254,7 @@ namespace S3_Scout
             }
         }
 
+        //Do not show the secret key on the screen, use **** to mask it
         private void dgvAccounts_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.ColumnIndex == 2 && e.Value != null)
@@ -246,6 +263,7 @@ namespace S3_Scout
             }
         }
 
+        //Double click on the account is the same as View button
         private void dgvAccounts_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
         {            
             ViewS3();

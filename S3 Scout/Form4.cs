@@ -22,33 +22,36 @@ namespace S3_Scout
             InitializeComponent();
         }
 
+        //Cancels out of the form
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            frmView.isValid = false;
+            frmView.isBucketInputValid = false;
             Close();
         }
 
+        //Validates the bucket name
         private void btnOK_Click(object sender, EventArgs e)
         {
-            frmView.isValid = true;
+            frmView.isBucketInputValid = true;
             strBucketName = txtFolderName.Text.Trim();
 
             int intRegion = cbRegion.SelectedIndex;
-            strRegion = lstRegions.ElementAt(intRegion);
-            //MessageBox.Show(strRegion);
+            strRegion = lstRegions.ElementAt(intRegion);            
             if (string.IsNullOrEmpty(strBucketName))
             {
                 MessageBox.Show("Folder name is mandatory!", "Add Folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                frmView.isValid = false;
+                frmView.isBucketInputValid = false;
             }
-            if (frmView.isValid) this.Close();
+            if (frmView.isBucketInputValid) this.Close();
         }
 
+        //Folders inherit region from the bucket, it can't be changed
         private void frmAddBucket_Load(object sender, EventArgs e)
         {
             cbRegion.SelectedIndex = 0;
         }
 
+        //Simulate Enter for OK and ESC to cancel out the form
         private void txtBucketName_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -59,8 +62,6 @@ namespace S3_Scout
             {
                 this.Close();
             }
-        }
-
-        
+        }        
     }
 }
