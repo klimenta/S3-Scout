@@ -105,7 +105,7 @@ namespace S3_Scout
 
         //List buckets on the left side on the form
         private void ListBuckets()
-        {
+        {            
             dgvBuckets.Rows.Clear();
             intBucketCount = 0;
             Cursor.Current = Cursors.WaitCursor;
@@ -126,19 +126,33 @@ namespace S3_Scout
                 return;
             }
             AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
-
+            
             try
             {
                 bAccountError = false;
                 ListBucketsResponse response = awsS3Client.ListBuckets();
+                GetBucketLocationResponse bucketresponse = null;
+                string strRegion;
+                bool bErrorResponse;
+
                 foreach (S3Bucket bucket in response.Buckets)
                 {
                     GetBucketLocationRequest bucketrequest = new GetBucketLocationRequest
                     {
                         BucketName = bucket.BucketName
                     };
-                    GetBucketLocationResponse bucketresponse = awsS3Client.GetBucketLocation(bucketrequest);
-                    string strRegion = bucketresponse.Location;
+                    try
+                    {
+                        bucketresponse = awsS3Client.GetBucketLocation(bucketrequest);
+                        bErrorResponse = false;
+                    }
+                    catch (AmazonS3Exception e)
+                    {                                                
+                        LogEntry(FontStyle.Regular, bucket.BucketName + " " + e.Message);
+                        bErrorResponse = true;                        
+                    }
+                    if (!bErrorResponse) strRegion = bucketresponse.Location;
+                        else strRegion = "ERROR";
                     if (strRegion == "")
                     {
                         strRegion = "us-east-1";
@@ -150,11 +164,29 @@ namespace S3_Scout
                 Cursor.Current = Cursors.Default;
             }
             catch (Exception ex)
-            {                
+            {
                 MessageBox.Show(ex.Message.ToString(), "Account error",
                   MessageBoxButtons.OK, MessageBoxIcon.Error);
                 bAccountError = true;
-            }  
+            }
+        }
+
+
+        //Find the Nth occurence of a character in a string
+        private int IndexOfOccurence(string s, char match, int occurence)
+        {
+            int i = 1;
+            int index = 0;
+
+            while (i <= occurence && (index = s.IndexOf(match, index + 1)) != -1)
+            {
+                if (i == occurence)
+                    return index;
+
+                i++;
+            }
+
+            return -1;
         }
 
         //List buckets when the form is shown
@@ -187,30 +219,40 @@ namespace S3_Scout
             {
                 lstResponse = awsS3Client.ListObjectsV2(lstRequest);
                 char cFolderDelimiter = '/';
-                IEnumerable<S3Object> folders;
                 IEnumerable<S3Object> files;
+                IEnumerable<S3Object> folders;
+                
+                folders = lstResponse.S3Objects.Clone();
 
                 //This returns folders only
                 if (strPrefix == "")
-                {
-                    folders = lstResponse.S3Objects.Where(x => x.Key.EndsWith(@"/") && x.Size == 0
-                                                            && x.Key.Count(f => (f == cFolderDelimiter)) == 1);
+                {                                        
+                    folders = folders.Where(x => x.Key.EndsWith(@"/") && x.Size == 0
+                              && x.Key.Count(f => (f == cFolderDelimiter)) == 1).ToList();
                 }
                 else
                 {
-                    folders = lstResponse.S3Objects.Where(x => x.Key.Substring(strPrefix.Length + 1).EndsWith(@"/")
-                                                            && x.Size == 0
-                                                            && x.Key.Substring(strPrefix.Length + 1).Count(f => (f == cFolderDelimiter)) == 1);
+                    folders = folders.Where(x => x.Key.Count(f => (f == cFolderDelimiter)) > 1).ToList();
+                    //Get the subfolders only                                                            
+                    folders.ToList().ForEach(s => s.Key = s.Key.Substring(0, IndexOfOccurence(s.Key, cFolderDelimiter, 
+                        strPrefix.Count(f => f == cFolderDelimiter) + 2) + 1));
+                    folders = folders.Where(x => x.Key != "").ToList();
+                    //Remove duplicates
+                    folders = folders.GroupBy(x => x.Key).Select(x => x.First()).ToList();
                 }
                 //This returns files only 
                 if (strPrefix == "")
                 {
-                    files = lstResponse.S3Objects.Where(x => x.Key.Count(f => f == cFolderDelimiter) == 0);
+                    files = lstResponse.S3Objects;
+                    files = files.Where(x => x.Key.Count(f => f == cFolderDelimiter) == 0);
                 }
                 else
-                {
-                    files = lstResponse.S3Objects.Where(x => x.Key.Substring(strPrefix.Length + 1).Count(f => f == cFolderDelimiter) == 0
-                                                        && x.Key.Substring(strPrefix.Length + 1) != "");
+                {                 
+                    files = lstResponse.S3Objects;
+                    files = files.Where(x => !(string.IsNullOrEmpty(x.Key)));
+                    files = files.GroupBy(x => x.Key).Select(x => x.First());
+                    files = files.Where(x => x.Key.Substring(strPrefix.Length + 1).Count(f => f == cFolderDelimiter) == 0
+                                                       && x.Key.Substring(strPrefix.Length + 1) != "");
                 }
                 foreach (S3Object obj in folders)
                 {
@@ -248,6 +290,7 @@ namespace S3_Scout
                 }
                 lstRequest.ContinuationToken = lstResponse.NextContinuationToken;
             } while (lstResponse.IsTruncated);
+            lstS3Objects = lstS3Objects.GroupBy(x => x.Key).Select(x => x.First()).ToList();
             return lstS3Objects;
         }
 
@@ -306,13 +349,19 @@ namespace S3_Scout
                 ShowPage(intPage, lstS3Objects);
             }
             Cursor.Current = Cursors.Default;
-            lblCurrentFolder.Text = "Path: " + PathShortener(strFolderName + "/" + strPrefix, 70);
+            lblCurrentFolder.Text = "Path: " + PathShortener(strFolderName + "/" + strPrefix, 65);
         }
 
         //Double-click bucket on the left
         private void dgvBuckets_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             string strBucketName = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[0].Value.ToString();
+            string strRegion = dgvBuckets.Rows[dgvBuckets.CurrentRow.Index].Cells[1].Value.ToString();
+            if (strRegion == "ERROR")
+            {
+                LogEntry(FontStyle.Bold, strBucketName + " is in ERROR state!");
+                return;
+            }
             strTopLevelBucket = strBucketName;
             strCurrentPrefix = "";
             RefreshKeysGrid(strBucketName, strCurrentPrefix);
@@ -507,7 +556,7 @@ namespace S3_Scout
                         if (!ex.ErrorCode.Equals("BucketNotEmpty"))
                         {
                             // We got an unanticipated error. Just rethrow.
-                            LogEntry(FontStyle.Bold, "3Failed! Check the policy for accidental deletion.");
+                            LogEntry(FontStyle.Bold, "Failed! Check the policy for accidental deletion.");
                             return;
                         }
                     }
@@ -528,6 +577,7 @@ namespace S3_Scout
         {            
             progressBar1.Value = 0;
             int intUploadedFiles = 1;
+            openFileDialog1.FileName = "";
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
@@ -680,6 +730,7 @@ namespace S3_Scout
                 strCurrentPrefix = strCurrentPrefix.Substring(0, intDelimiterPosition);
             else strCurrentPrefix = "";
             RefreshKeysGrid(strTopLevelBucket, strCurrentPrefix);
+            if (strCurrentPrefix != "") strCurrentPrefix = strCurrentPrefix + "/";
         }
 
         //Refresh buckets on left
