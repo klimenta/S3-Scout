@@ -38,11 +38,11 @@
             this.btnEdit = new System.Windows.Forms.Button();
             this.btnNew = new System.Windows.Forms.Button();
             this.dgvAccounts = new System.Windows.Forms.DataGridView();
-            this.ttipAbout = new System.Windows.Forms.ToolTip(this.components);
             this.colAccountName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colAccessKey = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colSecretKey = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colPrefix = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ttipAbout = new System.Windows.Forms.ToolTip(this.components);
             this.tlpAccounts.SuspendLayout();
             this.pnlMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAccounts)).BeginInit();
@@ -147,7 +147,7 @@
             this.dgvAccounts.ReadOnly = true;
             this.dgvAccounts.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvAccounts.Size = new System.Drawing.Size(693, 315);
-            this.dgvAccounts.TabIndex = 1;            
+            this.dgvAccounts.TabIndex = 1;
             this.dgvAccounts.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvAccounts_CellContentDoubleClick);
             this.dgvAccounts.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvAccounts_CellFormatting);
             // 
@@ -186,7 +186,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(500, 360);
             this.Name = "frmMain";
-            this.Text = "S3 Scout - v0.0.1";
+            this.Text = "S3 Scout - v0.0.2";
             this.tlpAccounts.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();

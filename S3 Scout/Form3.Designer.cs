@@ -177,6 +177,7 @@
             this.btnCancel.Size = new System.Drawing.Size(34, 34);
             this.btnCancel.TabIndex = 6;
             this.btnCancel.Text = "X";
+            this.toolTip1.SetToolTip(this.btnCancel, "Cancel");
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
@@ -198,6 +199,7 @@
             this.btnPrev.Size = new System.Drawing.Size(34, 23);
             this.btnPrev.TabIndex = 11;
             this.btnPrev.Text = "<";
+            this.toolTip1.SetToolTip(this.btnPrev, "Previous");
             this.btnPrev.UseVisualStyleBackColor = true;
             this.btnPrev.Click += new System.EventHandler(this.btnPrev_Click);
             // 
@@ -210,6 +212,7 @@
             this.btnNext.Size = new System.Drawing.Size(34, 23);
             this.btnNext.TabIndex = 12;
             this.btnNext.Text = ">";
+            this.toolTip1.SetToolTip(this.btnNext, "Next");
             this.btnNext.UseVisualStyleBackColor = true;
             this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
             // 
@@ -283,6 +286,7 @@
             this.btnUp.Size = new System.Drawing.Size(34, 23);
             this.btnUp.TabIndex = 20;
             this.btnUp.Text = "^";
+            this.toolTip1.SetToolTip(this.btnUp, "Folder up");
             this.btnUp.UseVisualStyleBackColor = true;
             this.btnUp.Click += new System.EventHandler(this.btnUp_Click);
             // 
