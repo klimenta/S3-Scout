@@ -3,7 +3,7 @@
 S3 Scout is a program made in C# (.NET 4.7.1) for managing S3 objects. It is very similar to S3 Browser and Cyber Duck, but with less options. 
 If you want to compile from the source, you'll need the S3 SDK from AWS and the JSON.NET from Newtonsoft. 
 
-**NOTE:** Version 0.0.1 has a bug when browsing certain objects created in the console, so don't use it.
+**NOTE:** Always use the latest version of the project, there are numerous small bugs fixed.
 
 ## Usage
 
