@@ -815,7 +815,7 @@ namespace S3_Scout
 
         //Delete file/folder = object = key on the right
         private async void btnDeleteFile_Click(object sender, EventArgs e)
-        {         
+        {            
             int intselectedCellCount = dgvFiles.SelectedRows.Count;
             if (intselectedCellCount == 0)
             {
@@ -823,19 +823,21 @@ namespace S3_Scout
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            DialogResult dialogResult = MessageBox.Show("Object(s) will be deleted. Are you sure?", "Delete S3 Objects", MessageBoxButtons.YesNo);
+            DialogResult dialogResult = MessageBox.Show("Object(s) will be deleted. Are you sure?", 
+                "Delete S3 Objects", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
+                Cursor.Current = Cursors.WaitCursor;
                 foreach (DataGridViewRow r in dgvFiles.SelectedRows)
                 {
                     string strDeleteName = r.Cells[1].Value.ToString();
                     Bitmap bmpType = (Bitmap)r.Cells[0].Value;
-                    if ((string)bmpType.Tag == "folder")
-                    {
-                        strDeleteName = strDeleteName + "/";
-                    }
-
                     AmazonS3Client awsS3Client = new AmazonS3Client(strAccessKey, strSecretKey);
+                    if ((string)bmpType.Tag == "folder")
+                    {                                              
+                        S3DirectoryInfo objToDelete = new S3DirectoryInfo(awsS3Client, strTopLevelBucket, strCurrentPrefix + strDeleteName);
+                        objToDelete.Delete(true);                                                
+                    }
                     try
                     {
                         var deleteObjectRequest = new DeleteObjectRequest
@@ -844,8 +846,6 @@ namespace S3_Scout
                             Key = strCurrentPrefix + strDeleteName
                         };
                         await awsS3Client.DeleteObjectAsync(deleteObjectRequest);
-                        LogEntry(FontStyle.Regular, strDeleteName + " deleted.");
-                        RefreshKeys();
                     }
                     catch (AmazonS3Exception ex)
                     {
@@ -857,8 +857,11 @@ namespace S3_Scout
                         MessageBox.Show("Unknown error encountered on server. Message:'{0}' when deleting an object", ex.Message,
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                }
+                    LogEntry(FontStyle.Regular, strDeleteName + " deleted.");
+                }                
             }
+            RefreshKeys();
+            Cursor.Current = Cursors.Default;
         }
     }
 }
