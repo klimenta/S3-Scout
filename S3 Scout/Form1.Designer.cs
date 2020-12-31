@@ -186,7 +186,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(500, 360);
             this.Name = "frmMain";
-            this.Text = "S3 Scout - v0.0.3";
+            this.Text = "S3 Scout - v0.0.4";
             this.tlpAccounts.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();

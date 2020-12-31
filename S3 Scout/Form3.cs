@@ -568,6 +568,8 @@ namespace S3_Scout
                     intBucketCount--;
                     lblBuckets.Text = "Buckets: " + intBucketCount.ToString();
                     dgvFiles.Rows.Clear();
+                    strBucketName = "";
+                    strTopLevelBucket = "";
                 }
             }
         }
@@ -803,6 +805,7 @@ namespace S3_Scout
             {
                 strRefreshPrefix = "";
             }
+            if (string.IsNullOrEmpty(strTopLevelBucket)) return;
             RefreshKeysGrid(strTopLevelBucket, strRefreshPrefix);
             LogEntry(FontStyle.Regular, "Refresh completed.");
         }
