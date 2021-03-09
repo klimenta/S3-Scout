@@ -226,9 +226,9 @@ namespace S3_Scout
 
                 //This returns folders only
                 if (strPrefix == "")
-                {                                        
+                {
                     folders = folders.Where(x => x.Key.EndsWith(@"/") && x.Size == 0
-                              && x.Key.Count(f => (f == cFolderDelimiter)) == 1).ToList();
+                              || x.Key.Count(f => (f == cFolderDelimiter)) >= 1).ToList();
                 }
                 else
                 {
@@ -254,12 +254,17 @@ namespace S3_Scout
                     files = files.Where(x => x.Key.Substring(strPrefix.Length + 1).Count(f => f == cFolderDelimiter) == 0
                                                        && x.Key.Substring(strPrefix.Length + 1) != "");
                 }
+                
+                //Parse folders                 
                 foreach (S3Object obj in folders)
                 {
                     cMyS3Object MyS3ObjectFolder = new cMyS3Object();
                     if (strPrefix == "")
                     {
                         MyS3ObjectFolder.Key = obj.Key;
+                        MyS3ObjectFolder.Key = string.Concat(obj.Key.TakeWhile((c) => c != cFolderDelimiter));
+                        //folders = folders.Select(x => x.Key.Split('|')).ToList();
+                        MyS3ObjectFolder.Key = MyS3ObjectFolder.Key + cFolderDelimiter;
                     }
                     else
                     {
@@ -271,6 +276,7 @@ namespace S3_Scout
                     MyS3ObjectFolder.Folder = true;
                     lstS3Objects.Add(MyS3ObjectFolder);
                 }
+                //Parse files
                 foreach (S3Object obj in files)
                 {
                     cMyS3Object MyS3ObjectFile = new cMyS3Object();
